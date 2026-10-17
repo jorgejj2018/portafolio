@@ -96,8 +96,6 @@ const poses = [
   { id: 'sonrisa', src: asset('avatar/busto-sonrisa.webp'), w: 241, h: 403 },
 ];
 
-// Índice de capítulos: origen, cinco mundos, producción y final
-const capitulos = [{ id: 'origin', nombre: 'Origin' }, ...mundos.map((m) => ({ id: m.id, nombre: m.nombre })), { id: 'production', nombre: 'Production' }, { id: 'me', nombre: 'Jorge' }];
 ---
 
 <Base title={`${perfil.nombre} · ${perfil.rol}`} description={`${perfil.nombre}, ${perfil.rol.toLowerCase()} in ${perfil.ubicacion}. ${perfil.lema}`}>
@@ -149,33 +147,17 @@ const capitulos = [{ id: 'origin', nombre: 'Origin' }, ...mundos.map((m) => ({ i
         <span class="grid size-9 place-items-center rounded-lg bg-cream text-sm font-extrabold text-shirt">JQ</span>
         <span class="hidden text-sm font-semibold sm:inline">Jorge Quintero</span>
       </a>
-      <p class="w-now" aria-live="polite"><span data-now-num>01</span>/{String(capitulos.length).padStart(2, '0')} · <span data-now>Origin</span></p>
       <a href="#me" class="btn btn-primary shrink-0">Contact</a>
     </nav>
     <div class="h-0.5 origin-left bg-accent" style="transform:scaleX(0)" data-progress></div>
   </header>
 
-  <!-- Índice lateral (escritorio) -->
-  <nav class="w-index" aria-label="Worlds">
-    <ol>
-      {
-        capitulos.map((c) => (
-          <li>
-            <a href={`#${c.id}`} data-index={c.id}>
-              <span>{c.nombre}</span>
-              <i />
-            </a>
-          </li>
-        ))
-      }
-    </ol>
-  </nav>
 
   <main class="relative z-10 overflow-x-clip">
     <!-- Origen -->
     <section id="origin" class="w-scene w-scene-intro" data-chapter="Origin">
       <div class="w-intro">
-        <p class="w-kicker">A story in seven worlds</p>
+        <p class="w-kicker">A story in six worlds</p>
         <h1 class="w-intro-title" data-split>Every product starts as <em>an idea.</em></h1>
         <p class="w-intro-sub">This is the story of the engineer who turns them into software. Scroll to travel through the worlds he has built in.</p>
         <p class="w-scroll"><span></span> Scroll to travel</p>

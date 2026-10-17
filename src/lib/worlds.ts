@@ -122,24 +122,9 @@ function textos() {
   }
 }
 
-/** Capítulo actual (encabezado e índice) y barra de avance. */
+/** Barra de avance del recorrido. */
 function capitulo() {
-  const num = $('[data-now-num]');
-  const nombre = $('[data-now]');
   const barra = $('[data-progress]');
-  $$('main > section').forEach((s, i) =>
-    ScrollTrigger.create({
-      trigger: s,
-      start: 'top 55%',
-      end: 'bottom 55%',
-      onToggle: ({ isActive }) => {
-        if (!isActive) return;
-        if (num) num.textContent = String(i + 1).padStart(2, '0');
-        if (nombre) nombre.textContent = s.dataset.chapter ?? '';
-        $$('[data-index]').forEach((a) => a.setAttribute('aria-current', String(a.dataset.index === s.id)));
-      },
-    }),
-  );
   ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (s) => barra && (barra.style.transform = `scaleX(${s.progress})`) });
 }
 
