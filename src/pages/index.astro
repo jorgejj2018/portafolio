@@ -1,38 +1,91 @@
 ---
 /**
- * Versión "Inmersión" (inspirada en el ritmo de plastic-ocean.com).
- * El scroll es un descenso: de la superficie (la idea) a lo profundo (producción).
- * El avatar es el protagonista: flota, gira y cambia de pose mientras bajas;
- * las cifras aparecen en tarjetas de vidrio y los años se cuentan con el scroll.
- * La versión de partículas sigue en /particles y la primera en /old.
+ * Versión "Mundos": el portafolio cuenta una historia y el scroll atraviesa un mundo por cada
+ * tecnología (la web, React, TypeScript y Next.js, Java y Spring Boot, la nube y la IA,
+ * producción). Entre mundo y mundo se abre un portal. El avatar viaja contigo y al final
+ * aparece tu nombre, tu avatar al lado y tu tarjeta con redes.
+ * Versiones anteriores: /particles y /old.
  */
 import Base from '../layouts/Base.astro';
-import '../styles/dive.css';
+import '../styles/worlds.css';
 import { asset, BASE } from '../lib/base';
-import { datosEstructurados, especializaciones, motivoPrivado, pedirAcceso, perfil, proyectos, stack, trayectoria } from '../data/perfil';
+import { datosEstructurados, especializaciones, motivoPrivado, pedirAcceso, perfil, proyectos } from '../data/perfil';
 
 const [estrella, ...resto] = proyectos;
 const urlSitio = Astro.site ? new URL(BASE, Astro.site).href : BASE;
 const jsonLd = JSON.stringify(datosEstructurados(urlSitio));
 
-const cifras = [
-  { valor: 7, sufijo: '+', unidad: 'yrs', texto: 'building products for the web' },
-  { valor: 40, sufijo: '+', unidad: 'repos', texto: 'public and private on GitHub' },
-  { valor: 12, sufijo: '', unidad: 'certs', texto: 'licenses and certifications, including Google Vertex AI' },
-  { valor: 1, sufijo: '', unidad: 'SaaS', texto: 'of my own, live in production' },
+type Mundo = {
+  id: string;
+  nombre: string;
+  anio: string;
+  titulo: string;
+  emphasis: string;
+  texto: string;
+  chips: string[];
+  /** Símbolos que flotan en el fondo del mundo */
+  simbolos: string[];
+};
+
+// Cada mundo es un capítulo de la historia (mismo orden que las capas del escenario)
+const mundos: Mundo[] = [
+  {
+    id: 'web',
+    nombre: 'The Web',
+    anio: '2019',
+    titulo: 'Where it all',
+    emphasis: 'began.',
+    texto: 'My first lines of code at Cesde: HTML, CSS, JavaScript, PHP and MySQL. Pages that taught me how the web really works.',
+    chips: ['HTML5', 'CSS3', 'JavaScript', 'PHP', 'MySQL', 'Bootstrap'],
+    simbolos: ['<html>', '</div>', '{ }', '.css', 'function()', '<body>', '#id', ';'],
+  },
+  {
+    id: 'react',
+    nombre: 'React',
+    anio: '2021',
+    titulo: 'Thinking in',
+    emphasis: 'components.',
+    texto: 'Academia Geek bootcamp: React, Redux and Firebase in team sprints. Then my first developer job, where I grew for four years.',
+    chips: ['React', 'Redux', 'Firebase', 'Hooks', 'Design Thinking'],
+    simbolos: ['<App />', 'useState', '<Card />', 'props', 'useEffect', '<Nav />', 'JSX'],
+  },
+  {
+    id: 'typescript',
+    nombre: 'TypeScript & Next.js',
+    anio: '2023',
+    titulo: 'Making it',
+    emphasis: 'solid.',
+    texto: 'Type-safe from front to back, server rendering and API routes: products that are fast, easy to find and hard to break.',
+    chips: ['TypeScript', 'Next.js', 'SSR & SSG', 'Tailwind CSS', 'Astro'],
+    simbolos: [': string', 'interface', 'type', '<T>', 'app/', 'async', 'export'],
+  },
+  {
+    id: 'backend',
+    nombre: 'Java & Spring Boot',
+    anio: '2025',
+    titulo: 'Where the business',
+    emphasis: 'logic lives.',
+    texto: 'APIs and integrations that scale, built with Java, Spring Boot and Node.js, in fintech teams alongside QA, product and business.',
+    chips: ['Java', 'Spring Boot', 'Node.js', 'REST APIs', 'SQL'],
+    simbolos: ['GET /sales 200', 'POST /orders 201', '@RestController', '@Service', 'PUT /users 200', 'JWT'],
+  },
+  {
+    id: 'cloud',
+    nombre: 'Cloud & AI',
+    anio: '2026',
+    titulo: 'Deployed, and now',
+    emphasis: 'intelligent.',
+    texto: 'Google Cloud, Vertex AI and AI agents. Today I work as a Forward Deployed Engineer: close to the business, turning real needs into software.',
+    chips: ['Google Cloud', 'Vertex AI', 'AI agents', 'Cloud Functions', 'Fintech'],
+    simbolos: ['agent.run()', 'gcloud deploy', 'vertex.ai', 'prompt', 'embeddings', 'Cloud Run'],
+  },
 ];
 
-// Burbujas que suben en la escena del stack
-const burbujas = ['React', 'Next.js', 'TypeScript', 'Java', 'Spring Boot', 'Node.js', 'GCP', 'Vertex AI', 'AI agents', 'REST', 'Firebase', 'Tailwind'];
-
-const historia = [...trayectoria];
-const menu = [
-  { id: 'surface', nombre: 'Surface' },
-  { id: 'numbers', nombre: 'In numbers' },
-  { id: 'stack', nombre: 'Beneath' },
-  { id: 'work', nombre: 'Work' },
-  { id: 'journey', nombre: 'Journey' },
-  { id: 'contact', nombre: 'Contact' },
+const redes = [
+  { texto: 'LinkedIn', url: perfil.enlaces.linkedin, detalle: '/in/jorgeadj' },
+  { texto: 'GitHub', url: perfil.enlaces.github, detalle: '@jorgejj2018' },
+  { texto: 'Upwork', url: perfil.enlaces.upwork, detalle: 'Hire me' },
+  { texto: 'X', url: perfil.enlaces.x, detalle: '@jorge_adj' },
 ];
 
 const poses = [
@@ -40,7 +93,11 @@ const poses = [
   { id: 'tres', src: asset('avatar/perfil-tres-cuartos.webp'), w: 187, h: 362 },
   { id: 'lado', src: asset('avatar/perfil-lado.webp'), w: 132, h: 363 },
   { id: 'arriba', src: asset('avatar/busto-mirando-arriba.webp'), w: 265, h: 401 },
+  { id: 'sonrisa', src: asset('avatar/busto-sonrisa.webp'), w: 241, h: 403 },
 ];
+
+// Índice de capítulos: origen, cinco mundos, producción y final
+const capitulos = [{ id: 'origin', nombre: 'Origin' }, ...mundos.map((m) => ({ id: m.id, nombre: m.nombre })), { id: 'production', nombre: 'Production' }, { id: 'me', nombre: 'Jorge' }];
 ---
 
 <Base title={`${perfil.nombre} · ${perfil.rol}`} description={`${perfil.nombre}, ${perfil.rol.toLowerCase()} in ${perfil.ubicacion}. ${perfil.lema}`}>
@@ -50,142 +107,124 @@ const poses = [
     <link rel="alternate" type="text/plain" href={`${BASE}llms.txt`} title="Profile for AI assistants" />
   </Fragment>
 
-  <!-- Escenario fijo: agua, luz, burbujas y el avatar protagonista -->
-  <div class="dive-stage" aria-hidden="true">
-    <div class="dive-sky" data-sky></div>
-    <div class="dive-water" data-water></div>
-    <div class="dive-rays" data-rays></div>
-    <div class="dive-surface" data-surface>
-      <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0 30 Q 180 10 360 30 T 720 30 T 1080 30 T 1440 30 V60 H0Z" /></svg>
+  <!-- Escenario fijo: una capa por mundo; cada una se abre como un portal sobre la anterior -->
+  <div class="w-stage" aria-hidden="true">
+    <div class="w-world w-origin" data-world>
+      <div class="w-stars"></div>
     </div>
-    <div class="dive-bubbles" data-bubbles data-palabras={JSON.stringify(burbujas)}></div>
-    <div class="dive-hero" data-avatar>
-      {poses.map((p, i) => <img src={p.src} alt="" width={p.w} height={p.h} class="dive-pose" data-pose={p.id} style={i === 0 ? '' : 'opacity:0'} draggable="false" />)}
+    {
+      mundos.map((m) => (
+        <div class:list={['w-world', `w-${m.id}`]} data-world>
+          <div class="w-deco" />
+          <div class="w-symbols">
+            {m.simbolos.map((s, i) => (
+              <span class="w-symbol" style={`--i:${i}`}>
+                {s}
+              </span>
+            ))}
+          </div>
+          <p class="w-watermark">{m.anio}</p>
+        </div>
+      ))
+    }
+    <div class="w-world w-production" data-world>
+      <div class="w-deco"></div>
+      <img src={asset('mercatto.webp')} alt="" width="960" height="600" class="w-screen" data-screen />
     </div>
-    <img src={asset('mercatto.webp')} alt="" width="960" height="600" class="dive-object" data-object />
+    <div class="w-world w-me" data-world>
+      <div class="w-stars"></div>
+    </div>
+    <div class="w-ring" data-ring></div>
+
+    <!-- El avatar que viaja por los mundos -->
+    <div class="w-avatar" data-avatar>
+      {poses.map((p, i) => <img src={p.src} alt="" width={p.w} height={p.h} class="w-pose" data-pose={p.id} style={i === 0 ? '' : 'opacity:0'} draggable="false" />)}
+    </div>
   </div>
 
-  <!-- Encabezado mínimo, como la referencia -->
-  <header class="fixed inset-x-0 top-0 z-40 bg-gradient-to-b from-[#0a101c]/75 to-transparent pt-[env(safe-area-inset-top)]">
-    <nav class="dive-gutter flex h-16 items-center justify-between gap-3" aria-label="Main">
-      <a href="#surface" class="flex min-h-11 items-center gap-2.5 text-cream">
+  <!-- Encabezado -->
+  <header class="w-header">
+    <nav class="w-gutter flex h-16 items-center justify-between gap-3" aria-label="Main">
+      <a href="#origin" class="flex min-h-11 shrink-0 items-center gap-2.5 text-cream">
         <span class="grid size-9 place-items-center rounded-lg bg-cream text-sm font-extrabold text-shirt">JQ</span>
         <span class="hidden text-sm font-semibold sm:inline">Jorge Quintero</span>
       </a>
-      <div class="flex items-center gap-2">
-        <a href="#contact" class="btn btn-primary hidden sm:inline-flex">Let's talk</a>
-        <button type="button" class="dive-pill" data-menu-btn aria-expanded="false" aria-controls="dive-menu">Menu</button>
-      </div>
+      <p class="w-now" aria-live="polite"><span data-now-num>01</span>/{String(capitulos.length).padStart(2, '0')} · <span data-now>Origin</span></p>
+      <a href="#me" class="btn btn-primary shrink-0">Contact</a>
     </nav>
+    <div class="h-0.5 origin-left bg-accent" style="transform:scaleX(0)" data-progress></div>
   </header>
 
-  <!-- Menú a pantalla completa -->
-  <div id="dive-menu" class="dive-menu" data-menu hidden>
-    <nav class="dive-gutter flex min-h-svh flex-col justify-center pt-20 pb-10" aria-label="Sections">
-      <ol class="space-y-1">
-        {
-          menu.map((m, i) => (
-            <li>
-              <a href={`#${m.id}`} class="dive-menu-link" data-menu-link>
-                <span class="font-mono text-xs text-ice">{String(i + 1).padStart(2, '0')}</span>
-                {m.nombre}
-              </a>
-            </li>
-          ))
-        }
-      </ol>
-      <div class="mt-10 flex flex-wrap gap-2">
-        <a href={`mailto:${perfil.enlaces.email}`} class="btn btn-primary">Email me</a>
-        <a href={perfil.enlaces.linkedin} target="_blank" rel="noopener" class="btn btn-ghost">LinkedIn ↗</a>
-        <a href={`${BASE}particles/`} class="btn btn-ghost">Particles version</a>
-      </div>
-    </nav>
-  </div>
-
-  <main class="relative z-10">
-    <!-- 1 · Superficie -->
-    <section id="surface" class="dive-scene dive-hero-scene">
-      <h1 class="dive-title" data-hero-title>Jorge Quintero</h1>
-      <p class="dive-hero-lead">Ideas don't disappear.<br />They ship.</p>
-      <p class="dive-hero-scroll">Scroll down to dive in</p>
-      <p class="dive-hero-note">{perfil.rol}<br />{perfil.ubicacion}</p>
-    </section>
-
-    <!-- 2 · Frases centradas mientras el avatar se hunde y gira -->
-    <section class="dive-scene dive-center">
-      <p class="dive-phrase" data-phrase>Good software rarely draws attention.</p>
-    </section>
-    <section class="dive-scene dive-center">
-      <p class="dive-phrase" data-phrase>It's often seen as <em>just code.</em></p>
-    </section>
-    <section class="dive-scene dive-center">
-      <p class="dive-phrase" data-phrase>Behind it, there is <em>someone who builds it.</em></p>
-    </section>
-
-    <!-- 3 · Cifras en tarjetas de vidrio -->
-    <section id="numbers" class="dive-scene dive-numbers">
-      <h2 class="sr-only">Jorge in numbers</h2>
+  <!-- Índice lateral (escritorio) -->
+  <nav class="w-index" aria-label="Worlds">
+    <ol>
       {
-        cifras.map((c, i) => (
-          <div class:list={['dive-card', `dive-card-${i}`]} data-card>
-            <p class="dive-card-num">
-              <span data-count={c.valor}>{c.valor}</span>
-              {c.sufijo}
-              <small>{c.unidad}</small>
-            </p>
-            <p class="dive-card-text">{c.texto}</p>
-          </div>
+        capitulos.map((c) => (
+          <li>
+            <a href={`#${c.id}`} data-index={c.id}>
+              <span>{c.nombre}</span>
+              <i />
+            </a>
+          </li>
         ))
       }
-    </section>
+    </ol>
+  </nav>
 
-    <!-- 4 · Lo que hay debajo: el stack -->
-    <section id="stack" class="dive-scene dive-split">
-      <div class="dive-panel" data-panel>
-        <p class="dive-kicker">What lies beneath</p>
-        <h2 class="dive-h2">The stack that keeps <em>it afloat.</em></h2>
-        <div class="mt-6 space-y-5">
-          {
-            stack.map((g) => (
-              <div>
-                <h3 class="dive-kicker !text-cream/60">{g.grupo}</h3>
-                <ul class="mt-2.5 flex flex-wrap gap-1.5">
-                  {g.items.map((it) => (
-                    <li class="dive-chip">{it}</li>
-                  ))}
-                </ul>
-              </div>
-            ))
-          }
-        </div>
-        <p class="mt-6 text-sm leading-relaxed text-cream/70">
-          Going deeper on
-          {
-            especializaciones.map((e, i) => (
-              <>
-                {i > 0 && (i === especializaciones.length - 1 ? ' and ' : ', ')}
-                <a href={e.privado ? pedirAcceso(`${e.tecnologia} track`) : e.repo} class="underline decoration-ice/60 underline-offset-4 hover:text-cream">
-                  {e.tecnologia}
-                </a>
-              </>
-            ))
-          }
-          . Private study repos, ask for access.
-        </p>
+  <main class="relative z-10 overflow-x-clip">
+    <!-- Origen -->
+    <section id="origin" class="w-scene w-scene-intro" data-chapter="Origin">
+      <div class="w-intro">
+        <p class="w-kicker">A story in seven worlds</p>
+        <h1 class="w-intro-title" data-split>Every product starts as <em>an idea.</em></h1>
+        <p class="w-intro-sub">This is the story of the engineer who turns them into software. Scroll to travel through the worlds he has built in.</p>
+        <p class="w-scroll"><span></span> Scroll to travel</p>
       </div>
     </section>
 
-    <!-- 5 · Trabajo: Mercatto aparece flotando como objeto -->
-    <section class="dive-scene dive-center">
-      <p class="dive-phrase" data-phrase>Below the surface, <em>it runs a business.</em></p>
-    </section>
-    <section id="work" class="dive-scene dive-split dive-split-right">
-      <div class="dive-panel" data-panel>
-        <p class="dive-kicker">● Live in production</p>
-        <h2 class="dive-h2">{estrella?.nombre}</h2>
-        <p class="mt-4 leading-relaxed text-cream/80">{estrella?.descripcion}</p>
-        <p class="mt-3 font-mono text-xs text-cream/50">{estrella?.tags.join(' · ')}</p>
-        <div class="mt-6 flex flex-wrap gap-2">
+    {
+      mundos.map((m, i) => (
+        <section id={m.id} class:list={['w-scene', i % 2 ? 'w-right' : 'w-left']} data-chapter={m.nombre}>
+          <article class="w-card" data-card>
+            <p class="w-kicker">
+              World {String(i + 1).padStart(2, '0')} · {m.nombre} <span class="text-cream/50">· {m.anio}</span>
+            </p>
+            <h2 class="w-h2" data-split>
+              {m.titulo} <em>{m.emphasis}</em>
+            </h2>
+            <p class="w-text">{m.texto}</p>
+            <ul class="w-chips">
+              {m.chips.map((c) => (
+                <li>{c}</li>
+              ))}
+            </ul>
+            {m.id === 'typescript' && (
+              <p class="mt-5 text-sm text-cream/70">
+                Going deeper in private study repos:{' '}
+                {especializaciones.map((e, k) => (
+                  <>
+                    {k > 0 && ' · '}
+                    <a href={e.privado ? pedirAcceso(`${e.tecnologia} track`) : e.repo} class="underline decoration-ice/60 underline-offset-4 hover:text-cream">
+                      {e.tecnologia}
+                    </a>
+                  </>
+                ))}
+              </p>
+            )}
+          </article>
+        </section>
+      ))
+    }
+
+    <!-- Producción: lo que se construyó con todo lo anterior -->
+    <section id="production" class="w-scene w-right" data-chapter="Production">
+      <article class="w-card" data-card>
+        <p class="w-kicker"><span class="text-emerald-400">●</span> World 06 · Production · now</p>
+        <h2 class="w-h2" data-split>All of it, <em>live.</em></h2>
+        <p class="w-text">
+          <strong class="text-cream">{estrella?.nombre}</strong>: {estrella?.descripcion}
+        </p>
+        <div class="mt-5 flex flex-wrap gap-2">
           {
             estrella?.demo && (
               <a href={estrella.demo} target="_blank" rel="noopener" class="btn btn-primary">
@@ -201,11 +240,11 @@ const poses = [
             )
           }
         </div>
-        <p class="dive-kicker mt-8 !text-cream/60">Also shipped</p>
-        <ul class="mt-3 divide-y divide-cream/10 border-y border-cream/10">
+        <p class="w-kicker mt-7 !text-cream/55">Also shipped</p>
+        <ul class="mt-2 divide-y divide-cream/10 border-y border-cream/10">
           {
             resto.map((p) => (
-              <li class="flex items-center gap-3 py-3">
+              <li class="flex items-center gap-3 py-2.5">
                 <div class="min-w-0 flex-1">
                   <p class="font-semibold text-cream">
                     {p.nombre} <span class="ml-1 font-mono text-xs font-normal text-ice">{p.anio}</span>
@@ -226,49 +265,47 @@ const poses = [
           }
         </ul>
         <p class="mt-3 text-xs leading-relaxed text-cream/45">{motivoPrivado}</p>
-      </div>
+      </article>
     </section>
 
-    <!-- 6 · Trayectoria: el año cuenta con el scroll, como la profundidad en la referencia -->
-    <section id="journey" class="dive-journey" data-journey>
-      <div class="dive-journey-pin" data-journey-pin>
-        <p class="dive-kicker text-center">Building since</p>
-        <p class="dive-year" data-year>{historia[0].anio}</p>
-        <div class="dive-milestones">
-          {
-            historia.map((t) => (
-              <div class="dive-milestone" data-milestone data-anio={t.anio}>
-                <p class="font-semibold text-cream">{t.titulo}</p>
-                <p class="mt-1 text-sm leading-relaxed text-cream/70">{t.texto}</p>
-              </div>
-            ))
-          }
+    <!-- Final: la historia se cierra con mi nombre, mi avatar al lado y mi tarjeta -->
+    <section id="me" class="w-scene w-finale" data-chapter="Jorge">
+      <div class="w-finale-grid">
+        <div class="w-finale-name">
+          <p class="w-kicker">The engineer behind the story</p>
+          <h2 class="w-name" data-name>Jorge<br /><em>Quintero.</em></h2>
+        </div>
+        <img src={asset('avatar/hero.webp')} alt="3D avatar of Jorge Quintero with arms crossed" width="587" height="1083" class="w-finale-avatar" data-finale-avatar />
+        <div class="w-contact-card" data-contact-card>
+          <div class="flex items-center gap-4">
+            <img src={asset('foto-real.webp')} alt="" width="560" height="560" class="size-16 shrink-0 rounded-full ring-2 ring-accent/60" />
+            <div class="min-w-0">
+              <p class="font-display text-[1.9rem] leading-none text-cream">{perfil.nombre}</p>
+              <p class="mt-1 text-sm text-cream/70">Forward Deployed Engineer · Fintech</p>
+              <p class="text-sm text-cream/50">{perfil.ubicacion}</p>
+            </div>
+          </div>
+          <div class="mt-5 flex flex-wrap gap-2">
+            <a href={`mailto:${perfil.enlaces.email}`} class="btn btn-primary flex-1">Email me</a>
+            <button type="button" class="btn btn-light flex-1" data-copiar={perfil.enlaces.email}>Copy email</button>
+          </div>
+          <ul class="mt-4 grid grid-cols-2 gap-2">
+            {
+              redes.map((r) => (
+                <li>
+                  <a href={r.url} target="_blank" rel="noopener" class="w-social">
+                    <span class="font-semibold text-cream">{r.texto} ↗</span>
+                    <span class="truncate font-mono text-[0.7rem] text-cream/55">{r.detalle}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="mt-4 font-mono text-xs break-all text-cream/55">{perfil.enlaces.email}</p>
         </div>
       </div>
-    </section>
-
-    <!-- 7 · Cierre: de vuelta a la superficie -->
-    <section class="dive-scene dive-center">
-      <p class="dive-phrase" data-phrase>This page will end.<br /><em>Good software keeps running.</em></p>
-    </section>
-    <section id="contact" class="dive-scene dive-contact">
-      <div class="dive-contact-card" data-panel>
-        <img src={asset('foto-real.webp')} alt="Jorge Quintero" width="560" height="560" class="size-20 rounded-full ring-2 ring-cream/40 sm:size-24" />
-        <h2 class="dive-h2 mt-5">Let's build <em>what's next.</em></h2>
-        <p class="mt-3 text-cream/80">An idea, a product or a team to build with: email is the fastest way to reach me.</p>
-        <div class="mt-6 flex flex-wrap justify-center gap-2">
-          <a href={`mailto:${perfil.enlaces.email}`} class="btn btn-primary min-h-12 px-6">Email me</a>
-          <button type="button" class="btn btn-light min-h-12 px-6" data-copiar={perfil.enlaces.email}>Copy email</button>
-        </div>
-        <ul class="mt-2 flex flex-wrap justify-center gap-2">
-          <li><a href={perfil.enlaces.linkedin} target="_blank" rel="noopener" class="btn btn-ghost">LinkedIn ↗</a></li>
-          <li><a href={perfil.enlaces.github} target="_blank" rel="noopener" class="btn btn-ghost">GitHub ↗</a></li>
-          <li><a href={perfil.enlaces.upwork} target="_blank" rel="noopener" class="btn btn-ghost">Upwork ↗</a></li>
-        </ul>
-        <p class="mt-5 font-mono text-xs break-all text-cream/60">{perfil.enlaces.email}</p>
-      </div>
-      <footer class="dive-footer">
-        <span>© {new Date().getFullYear()} {perfil.nombre}</span>
+      <footer class="w-footer">
+        <span>© {new Date().getFullYear()} {perfil.nombre} · The story continues.</span>
         <a href={`${BASE}profile.json`}>profile.json</a>
         <a href={`${BASE}particles/`}>Particles version</a>
         <a href={`${BASE}old/`}>First version</a>
@@ -279,8 +316,7 @@ const poses = [
   <p class="toast" role="status" aria-live="polite" data-toast></p>
 
   <script>
-    import { iniciarInmersion } from '../lib/dive';
-    iniciarInmersion();
+    import { iniciarMundos } from '../lib/worlds';
+    iniciarMundos();
   </script>
 </Base>
-
