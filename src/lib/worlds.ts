@@ -27,14 +27,15 @@ const POSES: Pose[] = ['hero', 'tres', 'lado', 'arriba', 'sonrisa'];
  * tarjeta, mirando hacia ella; en celulares sube para quedar encima de la tarjeta.
  */
 function avatarPorSeccion(lateral: boolean): Avatar[] {
-  const lado = (x: number, pose: Pose): Avatar => (lateral ? { x, y: 0, s: 1, o: 1, pose } : { x: 0, y: -44, s: 0.85, o: 1, pose });
+  // En celular el avatar queda arriba (debajo del encabezado) y la tarjeta empieza debajo de él
+  const lado = (x: number, pose: Pose): Avatar => (lateral ? { x, y: 0, s: 1, o: 1, pose } : { x: 0, y: -52, s: 1, o: 1, pose });
   return [
     { x: 0, y: 20, s: 0.8, o: 0, pose: 'hero' }, // origen: aún no aparece
-    lado(24, 'sonrisa'), // la web (tarjeta a la izquierda)
-    lado(-24, 'tres'), // React (tarjeta a la derecha)
-    lado(24, 'hero'), // TypeScript y Next.js
-    lado(-24, 'lado'), // Java y Spring Boot
-    lado(24, 'arriba'), // nube e IA: mira hacia arriba
+    lado(26, 'hero'), // la web (tarjeta a la izquierda)
+    lado(-26, 'tres'), // React (tarjeta a la derecha, el avatar mira hacia ella)
+    lado(26, 'sonrisa'), // TypeScript y Next.js
+    lado(-26, 'hero'), // Java y Spring Boot (de frente, mirando hacia la tarjeta)
+    lado(26, 'arriba'), // nube e IA: mira hacia arriba
     { x: 0, y: 10, s: 0.8, o: 0, pose: 'arriba' }, // producción: la app toma el escenario
     { x: 0, y: 10, s: 0.8, o: 0, pose: 'hero' }, // final: tiene su propio avatar
   ];

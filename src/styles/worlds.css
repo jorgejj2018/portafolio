@@ -261,6 +261,8 @@
   left: 50%;
   bottom: 0;
   z-index: 3;
+  /* Oculto hasta que el script lo coloca: así no aparece encima del título al recargar */
+  opacity: 0;
   height: min(78svh, 50rem);
   aspect-ratio: 587 / 1083;
   translate: -50% 0;
@@ -278,7 +280,7 @@
 }
 @media not ((width >= 64rem) or ((width >= 40rem) and (min-aspect-ratio: 6/5))) {
   .w-avatar {
-    height: min(52svh, 30rem);
+    height: min(40svh, 22rem);
   }
   .w-screen {
     width: 88vw;
@@ -459,8 +461,8 @@
 /* En celulares el avatar queda arriba: la tarjeta baja para no taparlo */
 @media not ((width >= 64rem) or ((width >= 40rem) and (min-aspect-ratio: 6/5))) {
   .w-scene:not(.w-scene-intro):not(.w-finale) {
-    align-items: flex-end;
-    padding-bottom: 12svh;
+    align-items: flex-start;
+    padding-top: 50svh;
   }
 }
 @media (width >= 64rem), (width >= 40rem) and (min-aspect-ratio: 6/5) {
@@ -527,6 +529,8 @@
   align-items: end;
   grid-template-columns: 1fr;
   grid-template-areas: 'name' 'avatar' 'card';
+  justify-items: center;
+  text-align: center;
 }
 .w-finale-name {
   grid-area: name;
@@ -564,23 +568,26 @@
 }
 @media (width >= 64rem), (width >= 40rem) and (min-aspect-ratio: 6/5) {
   .w-finale-grid {
-    grid-template-columns: 1fr auto minmax(0, 24rem);
-    grid-template-areas: 'name avatar card';
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: 'name name' 'avatar card';
     align-items: center;
+    column-gap: 3rem;
   }
   .w-finale-avatar {
-    height: min(70svh, 40rem);
+    justify-self: end;
+    height: min(52svh, 34rem);
   }
   .w-contact-card {
-    justify-self: end;
+    justify-self: start;
+    text-align: left;
   }
   .w-name {
-    font-size: clamp(3.6rem, 8vw, 8.5rem);
+    font-size: clamp(4rem, 10vw, 10rem);
   }
 }
 @media (width >= 40rem) and (min-aspect-ratio: 6/5) and (height < 32rem) {
   .w-finale-grid {
-    grid-template-columns: 1fr minmax(0, 20rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
     grid-template-areas: 'name card';
   }
   .w-finale-avatar {
@@ -626,4 +633,17 @@
   display: inline-flex;
   min-height: 2.75rem;
   align-items: center;
+}
+
+/* El nombre del final va en una sola línea cuando hay espacio */
+@media (width >= 64rem), (width >= 40rem) and (min-aspect-ratio: 6/5) {
+  .w-name br {
+    display: none;
+  }
+  .w-name em {
+    margin-left: 0.2em;
+  }
+}
+.w-contact-card {
+  text-align: left;
 }
