@@ -10,7 +10,7 @@ const { etiqueta, class: className = '' } = Astro.props;
 
 <div class:list={['flex flex-col gap-6', className]}>
   <p class="eyebrow flex items-center gap-3" data-reveal><span class="h-px w-8 bg-accent" aria-hidden="true"></span>{etiqueta}</p>
-  <h2 class="font-display text-[clamp(2.1rem,5.2vw,3.4rem)] leading-[1.05] font-bold tracking-[-0.015em] text-cream" data-split>
+  <h2 class="font-display text-[clamp(2.6rem,6.2vw,4.3rem)] leading-[1] font-bold tracking-[-0.015em] text-cream" data-split>
     <slot />
   </h2>
 </div>

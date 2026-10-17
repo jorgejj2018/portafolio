@@ -10,7 +10,8 @@
   --color-accent: #4f7cff;
   --color-accent-deep: #3460f0;
   --color-ice: #a9c1ff;
-  --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Instrument Serif', ui-serif, Georgia, serif;
+  --font-brand: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
@@ -246,4 +247,11 @@ section[id] {
     border-color: var(--color-ice);
     background: rgb(79 124 255 / 0.2);
   }
+}
+
+/* Títulos con serifa: la fuente solo tiene un peso, así que se evita la negrita falsa del navegador */
+.font-display {
+  font-weight: 400 !important;
+  letter-spacing: -0.012em !important;
+  font-synthesis: none;
 }
