@@ -21,7 +21,7 @@ const codigo = [
 ];
 ---
 
-<section id="home" data-station="0" class="relative grid min-h-svh items-center gap-8 pt-28 pb-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14" data-hero>
+<section id="home" data-station="0" class="relative grid min-h-svh items-center gap-8 pt-24 pb-16 md:pt-28 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14" data-hero>
   <div class="order-2 lg:order-1" data-hero-copy>
     <p class="eyebrow flex flex-wrap items-center gap-x-3 gap-y-1" data-hero-item>
       <span class="h-px w-8 bg-accent" aria-hidden="true"></span>
@@ -30,7 +30,7 @@ const codigo = [
       <span>{perfil.ubicacion}</span>
     </p>
     <h1
-      class="mt-5 font-display text-[clamp(3.1rem,10vw,6.5rem)] leading-[0.92] font-extrabold tracking-[-0.03em] text-cream"
+      class="mt-5 font-display text-[clamp(3.1rem,13vw,5.5rem)] lg:text-[clamp(3rem,7.2vw,6.5rem)] leading-[0.92] font-extrabold tracking-[-0.03em] text-cream"
       data-hero-title
     >
       Jorge<br />Quintero<span class="text-accent">.</span>
@@ -70,8 +70,8 @@ const codigo = [
   </div>
 
   <!-- El código se escribe, "compila" y sus partículas suben a formar la foto real: el producto terminado -->
-  <div class="relative order-1 mx-auto w-full max-w-[22rem] sm:max-w-[26rem] lg:order-2 lg:max-w-none" data-hero-avatar>
-    <div class="relative mx-auto aspect-square w-[11rem] sm:w-[14rem] lg:w-[17rem]">
+  <div class="relative order-1 mx-auto w-full max-w-[22rem] sm:max-w-[26rem] md:grid md:max-w-none md:grid-cols-[auto_1fr] md:items-center md:gap-10 lg:order-2 lg:block" data-hero-avatar>
+    <div class="relative mx-auto aspect-square w-[8.5rem] sm:w-[11rem] md:w-[12rem] lg:w-[17rem]">
       <div class="avatar-glow pointer-events-none absolute inset-[-30%]" data-pose-glow></div>
       <div class="photo-ring absolute inset-[-6px] rounded-full" aria-hidden="true"></div>
       <img
@@ -92,7 +92,7 @@ const codigo = [
       </p>
     </div>
 
-    <div class="code-window relative z-10 mt-6 overflow-hidden rounded-2xl border border-cream/10 bg-shirt-2/90 font-mono text-[0.66rem] leading-[1.75] shadow-2xl shadow-black/40 backdrop-blur sm:text-xs" data-hero-code>
+    <div class="code-window relative z-10 mt-5 md:mt-0 lg:mt-6 overflow-hidden rounded-2xl border border-cream/10 bg-shirt-2/90 font-mono text-[0.66rem] leading-[1.75] shadow-2xl shadow-black/40 backdrop-blur sm:text-xs" data-hero-code>
       <div class="flex items-center gap-2 border-b border-cream/10 px-4 py-2.5">
         <span class="size-2.5 rounded-full bg-[#ff5f57]"></span><span class="size-2.5 rounded-full bg-[#febc2e]"></span><span class="size-2.5 rounded-full bg-[#28c840]"></span>
         <span class="ml-2 text-cream/50">jorge.ts</span>

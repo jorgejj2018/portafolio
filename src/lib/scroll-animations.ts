@@ -271,7 +271,7 @@ function finalWord() {
     duration: 0.5,
     stagger: 0.07,
     ease: EASE,
-    scrollTrigger: { trigger: '[data-final-data]', start: 'top 88%', once: true },
+    scrollTrigger: { trigger: '[data-final-word]', start: 'top 75%', once: true },
   });
 }
 

@@ -204,3 +204,46 @@ section[id] {
 [data-final-data] {
   font-variant-ligatures: none;
 }
+
+/* Botones: todo lo que se puede tocar se ve como botón, también en pantallas táctiles sin hover */
+@layer components {
+  .btn {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    padding: 0 1.15rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn-primary {
+    background: var(--color-accent);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: var(--color-accent-deep);
+  }
+  .btn-light {
+    background: var(--color-cream);
+    color: var(--color-shirt);
+  }
+  .btn-light:hover {
+    background: #fff;
+  }
+  .btn-ghost {
+    border: 1px solid rgb(169 193 255 / 0.35);
+    background: rgb(79 124 255 / 0.1);
+    color: var(--color-cream);
+  }
+  .btn-ghost:hover {
+    border-color: var(--color-ice);
+    background: rgb(79 124 255 / 0.2);
+  }
+}

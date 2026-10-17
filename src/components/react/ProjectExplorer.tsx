@@ -76,18 +76,18 @@ export default function ProjectExplorer({ proyectos }: { proyectos: Proyecto[] }
                   <li key={t}>{t}</li>
                 ))}
               </ul>
-              <div className="mt-5 flex gap-2 border-t border-cream/10 pt-3 text-sm font-semibold">
+              <div className="mt-5 flex flex-wrap gap-2 border-t border-cream/10 pt-4">
                 {p.privado ? (
-                  <a className="inline-flex min-h-11 items-center gap-2 pr-3 text-cream hover:text-ice" href={pedirAcceso(p.nombre)} title={motivoPrivado}>
+                  <a className="btn btn-ghost" href={pedirAcceso(p.nombre)} title={motivoPrivado}>
                     <LockIcon /> Request code access
                   </a>
                 ) : (
-                  <a className="inline-flex min-h-11 items-center pr-3 text-cream hover:text-ice" href={p.repo} target="_blank" rel="noopener">
-                    Code ↗
+                  <a className="btn btn-ghost" href={p.repo} target="_blank" rel="noopener">
+                    View code ↗
                   </a>
                 )}
                 {p.demo && (
-                  <a className="inline-flex min-h-11 items-center px-3 text-ice hover:text-cream" href={p.demo} target="_blank" rel="noopener">
+                  <a className="btn btn-primary" href={p.demo} target="_blank" rel="noopener">
                     Live demo ↗
                   </a>
                 )}

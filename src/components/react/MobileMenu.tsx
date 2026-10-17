@@ -21,7 +21,7 @@ export default function MobileMenu({ niveles }: { niveles: Nivel[] }) {
         aria-expanded={abierto}
         aria-controls="menu-movil"
         aria-label={abierto ? 'Close menu' : 'Open menu'}
-        className="relative z-[60] grid size-11 place-items-center rounded-full border border-cream/15 md:hidden"
+        className="relative z-[60] grid size-11 place-items-center rounded-full border border-cream/15 lg:hidden"
       >
         <span className="relative block h-3 w-5">
           <motion.span
@@ -40,7 +40,7 @@ export default function MobileMenu({ niveles }: { niveles: Nivel[] }) {
           <motion.nav
             id="menu-movil"
             aria-label="Menu"
-            className="fixed inset-0 z-50 flex flex-col justify-center bg-shirt px-[max(1.5rem,env(safe-area-inset-left))] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] md:hidden"
+            className="fixed inset-0 z-50 flex flex-col justify-center bg-shirt px-[max(1.5rem,env(safe-area-inset-left))] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] lg:hidden"
             initial={{ clipPath: 'circle(0% at calc(100% - 2.6rem) 2rem)' }}
             animate={{ clipPath: 'circle(150% at calc(100% - 2.6rem) 2rem)' }}
             exit={{ clipPath: 'circle(0% at calc(100% - 2.6rem) 2rem)' }}
