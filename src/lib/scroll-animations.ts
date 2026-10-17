@@ -12,6 +12,16 @@ ScrollTrigger.config({ ignoreMobileResize: true });
 
 const EASE = 'expo.out';
 
+/**
+ * Posición de scroll para un borde del elemento, sin pasar del máximo de la página:
+ * al final del sitio (el cierre) el recorrido no alcanza para "bottom 45%" en celulares.
+ */
+const alcanzable = (el: Element, borde: 'top' | 'bottom', pct: number, margen = 0) => () => {
+  const r = el.getBoundingClientRect();
+  const y = (borde === 'top' ? r.top : r.bottom) + scrollY - innerHeight * pct;
+  return Math.max(0, Math.min(y, ScrollTrigger.maxScroll(window) - 1 - margen));
+};
+
 const $ = <T extends Element = HTMLElement>(sel: string, root: ParentNode = document) => root.querySelector<T>(sel);
 const $$ = <T extends Element = HTMLElement>(sel: string, root: ParentNode = document) =>
   Array.from(root.querySelectorAll<T>(sel));
@@ -169,8 +179,8 @@ function poses() {
       };
       ScrollTrigger.create({
         trigger: fig,
-        start: 'top 95%',
-        end: 'top 45%',
+        start: alcanzable(fig, 'top', 0.95, 120),
+        end: alcanzable(fig, 'top', 0.45),
         onUpdate: (self) => {
           entrada = self.progress;
           actualizar();
@@ -255,8 +265,8 @@ function finalWord() {
   };
   ScrollTrigger.create({
     trigger: word,
-    start: 'top 85%',
-    end: 'bottom 45%',
+    start: alcanzable(word, 'top', 0.85, 160),
+    end: alcanzable(word, 'bottom', 0.45),
     onUpdate: (self) => {
       progreso = self.progress;
       pintar();

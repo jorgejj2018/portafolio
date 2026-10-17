@@ -1,0 +1,70 @@
+---
+import Base from '../../layouts/Base.astro';
+import World from '../../components/three/World';
+import Header from '../../components/layout/Header.astro';
+import DepthGauge from '../../components/layout/DepthGauge.astro';
+import Hero from '../../components/sections/Hero.astro';
+import About from '../../components/sections/About.astro';
+import Stack from '../../components/sections/Stack.astro';
+import Specializations from '../../components/sections/Specializations.astro';
+import Projects from '../../components/sections/Projects.astro';
+import Timeline from '../../components/sections/Timeline.astro';
+import Contact from '../../components/sections/Contact.astro';
+import Marquee from '../../components/ui/Marquee.astro';
+import CodeSeam from '../../components/ui/CodeSeam.astro';
+import { cintas, pasosBuild as b, perfil } from '../../data/perfil';
+---
+
+<Base
+  title={`${perfil.nombre} · ${perfil.rol}`}
+  description={`Portfolio of ${perfil.nombre}, ${perfil.rol.toLowerCase()} based in ${perfil.ubicacion}. Software, APIs and integrations with React, Next.js, Spring Boot, GCP and AI agents.`}
+>
+  <World client:only="react" />
+  <Header />
+  <DepthGauge pasos={Object.entries(b).map(([id, v]) => ({ id, paso: v.paso }))} />
+
+  <main class="overflow-x-clip">
+    <div class="gutter mx-auto max-w-6xl">
+      <Hero />
+    </div>
+
+    <!-- Cintas cruzadas entre la portada y el resto -->
+    <div class="relative my-10 -rotate-3 py-6" data-bands>
+      <Marquee palabras={cintas.tecnologias} class="border-y border-cream/10 bg-shirt-2/80 backdrop-blur" />
+      <Marquee palabras={cintas.ideas} direccion={-1} variante="contorno" class="mt-2" />
+    </div>
+
+    <!-- Entre sección y sección, el paso del build que la produce -->
+    <div class="gutter mx-auto max-w-6xl">
+      <CodeSeam {...b.about} />
+      <About />
+      <CodeSeam {...b.stack} />
+      <Stack />
+      <CodeSeam {...b.specializations} />
+      <Specializations />
+      <CodeSeam {...b.projects} />
+      <Projects />
+      <CodeSeam {...b.journey} />
+      <Timeline />
+    </div>
+
+    <div class="relative my-10 rotate-2 py-6" data-bands>
+      <Marquee palabras={cintas.ideas} variante="contorno" />
+      <Marquee palabras={cintas.tecnologias} direccion={-1} class="mt-2 border-y border-cream/10 bg-accent/90 [&_li]:text-white [&_li_span]:bg-shirt" />
+    </div>
+
+    <div class="gutter mx-auto max-w-6xl">
+      <CodeSeam {...b.contact} />
+      <Contact />
+    </div>
+  </main>
+
+  <!-- Luz que sigue al cursor y textura de grano -->
+  <div class="cursor-light pointer-events-none fixed top-0 left-0 -z-[5] hidden size-[34rem] rounded-full [@media(hover:hover)]:block" data-cursor-light aria-hidden="true"></div>
+  <div class="grain pointer-events-none fixed inset-0 z-[60]" aria-hidden="true"></div>
+
+  <script>
+    import { initScrollAnimations } from '../../lib/scroll-animations';
+    initScrollAnimations();
+  </script>
+</Base>
