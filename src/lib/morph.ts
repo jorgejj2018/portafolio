@@ -245,7 +245,7 @@ export class EscenaMorph {
     const b = Math.min(a + 1, this.muestras.length - 1);
     const f = s - a;
     const e = easeInOut(f);
-    const explosion = Math.sin(Math.PI * f) * (this.vista.movil ? 0.9 : 1.4);
+    const explosion = Math.sin(Math.PI * f) * (this.vista.movil ? 0.9 : 1.1);
     const A = this.muestras[a];
     const B = this.muestras[b];
     const ea = this.encuadre(A);

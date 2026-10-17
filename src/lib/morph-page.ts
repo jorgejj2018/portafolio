@@ -29,7 +29,7 @@ function respaldo(img: Imagenes) {
   const lista = [img.foto, img.tresCuartos, null, img.lado, img.mercatto, img.arriba, img.hero, null];
   $$('[data-escena]').forEach((sec, i) => {
     const src = lista[i];
-    const panel = $('.panel-escena', sec);
+    const panel = $('[data-panel]', sec);
     if (!src || !panel) return;
     const el = document.createElement('img');
     el.src = src;
@@ -44,12 +44,15 @@ function conectarScroll(escena: EscenaMorph) {
   const secciones = $$('[data-escena]');
   const avance = new Array(secciones.length).fill(0);
   const actualizar = () => escena.setProgreso(avance.reduce((a, b) => a + b, 0));
+  // En celular la figura vive arriba: se arma mientras el capítulo nuevo sube hasta ella.
+  // En escritorio la ventana es más corta para que cada figura se quede formada más tiempo.
+  const movil = innerWidth < 1024;
   secciones.forEach((sec, k) => {
     if (k === 0) return;
     ScrollTrigger.create({
       trigger: sec,
-      start: 'top 85%',
-      end: 'top 20%',
+      start: movil ? 'top bottom' : 'top 68%',
+      end: movil ? 'top 45%' : 'top 36%',
       onUpdate: (self) => {
         avance[k] = self.progress;
         actualizar();
@@ -73,7 +76,7 @@ function capitulos() {
         if (!isActive) return;
         $$('[data-cap]').forEach((a) => a.setAttribute('aria-current', String(a.dataset.cap === sec.id)));
         if (num) num.textContent = String(i + 1).padStart(2, '0');
-        if (nombre) nombre.textContent = $(`[data-cap="${sec.id}"] .cap-label`)?.textContent ?? sec.id;
+        if (nombre) nombre.textContent = $(`[data-cap="${sec.id}"]`)?.dataset.nombre ?? sec.id;
       },
     });
   });
@@ -101,7 +104,7 @@ function textos() {
         }),
     });
   });
-  $$('.panel-escena').forEach((panel) => {
+  $$('[data-panel]').forEach((panel) => {
     const hijos = Array.from(panel.children).filter((c) => !c.hasAttribute('data-titulo'));
     gsap.from(hijos, {
       y: 26,
@@ -114,10 +117,103 @@ function textos() {
   });
 }
 
+/**
+ * Cada pregunta se escribe sola cuando entra en pantalla, como si alguien la tecleara.
+ * El texto completo ya está en el HTML para lectores de pantalla y buscadores.
+ */
+function preguntas() {
+  $$('[data-prompt]').forEach((el) => {
+    const texto = el.textContent?.trim() ?? '';
+    el.setAttribute('aria-label', texto);
+    el.innerHTML = '';
+    const span = document.createElement('span');
+    span.dataset.promptTexto = '';
+    span.setAttribute('aria-hidden', 'true');
+    // Reserva el ancho final para que la barra no cambie de tamaño mientras se escribe
+    const fantasma = document.createElement('span');
+    fantasma.textContent = texto;
+    fantasma.style.cssText = 'visibility:hidden;grid-area:1/1';
+    span.style.gridArea = '1/1';
+    const caja = document.createElement('span');
+    caja.style.cssText = 'display:inline-grid;min-width:0';
+    caja.setAttribute('aria-hidden', 'true');
+    caja.append(span, fantasma);
+    el.append(caja);
+    const estado = { n: 0 };
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 92%',
+      once: true,
+      onEnter: () => {
+        el.classList.add('escribiendo');
+        gsap.to(estado, {
+          n: texto.length,
+          duration: Math.min(1.4, 0.035 * texto.length),
+          ease: 'none',
+          onUpdate: () => (span.textContent = texto.slice(0, Math.round(estado.n))),
+          onComplete: () => gsap.delayedCall(0.8, () => el.classList.remove('escribiendo')),
+        });
+      },
+    });
+  });
+}
+
+/**
+ * En celular y tablet la figura está arriba y las respuestas suben por encima de ella:
+ * la nube se atenúa mientras una respuesta la tapa y vuelve a brillar entre capítulos.
+ */
+function atenuarNube(canvas: HTMLCanvasElement) {
+  const paneles = $$('[data-panel]');
+  let pendiente = false;
+  const medir = () => {
+    pendiente = false;
+    if (innerWidth >= 1024) {
+      canvas.style.opacity = '1';
+      return;
+    }
+    const zona = innerHeight * 0.48;
+    let tapado = 0;
+    for (const p of paneles) {
+      const r = p.getBoundingClientRect();
+      const arriba = Math.max(r.top, 0);
+      const abajo = Math.min(r.bottom, zona);
+      if (abajo > arriba) tapado = Math.max(tapado, (abajo - arriba) / zona);
+    }
+    canvas.style.opacity = String(1 - Math.min(1, tapado * 1.6) * 0.8);
+  };
+  const pedir = () => {
+    if (pendiente) return;
+    pendiente = true;
+    requestAnimationFrame(medir);
+  };
+  addEventListener('scroll', pedir, { passive: true });
+  addEventListener('resize', pedir);
+  medir();
+}
+
+/** Botón para copiar el correo, con confirmación en el mismo botón. */
+function copiarCorreo() {
+  $$('[data-copiar]').forEach((btn) => {
+    const etiqueta = $('[data-copiar-texto]', btn);
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copiar ?? '');
+        if (etiqueta) etiqueta.textContent = 'Copied ✓';
+      } catch {
+        location.href = `mailto:${btn.dataset.copiar}`;
+        return;
+      }
+      setTimeout(() => etiqueta && (etiqueta.textContent = 'Copy email'), 2000);
+    });
+  });
+}
+
 export function iniciarPortafolio() {
   const canvas = $<HTMLCanvasElement>('[data-morph]');
   const img = JSON.parse(canvas?.dataset.imagenes ?? '{}') as Imagenes;
   capitulos();
+  copiarCorreo();
+  if (canvas) atenuarNube(canvas);
   try {
     if (!canvas) throw new Error('sin canvas');
     const escena = new EscenaMorph(canvas, objetivos(img));
@@ -129,6 +225,9 @@ export function iniciarPortafolio() {
     canvas?.remove();
     respaldo(img);
   }
-  gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => textos());
+  gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+    textos();
+    preguntas();
+  });
   document.fonts?.ready.then(() => ScrollTrigger.refresh());
 }

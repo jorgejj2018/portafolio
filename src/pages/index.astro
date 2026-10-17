@@ -1,28 +1,34 @@
 ---
 /**
- * Versión nueva: "Rebuilt with every scroll".
- * Una sola nube de partículas 3D (lib/morph.ts) se transforma en cada capítulo:
- * tu foto real, tus avatares, la app de Mercatto y al final tu nombre.
+ * Versión nueva: "Ask me anything".
+ * El portafolio funciona como una entrevista: cada capítulo empieza con la pregunta que haría
+ * quien quiere trabajar conmigo y una sola nube de partículas 3D (lib/morph.ts) responde
+ * transformándose: la foto real, los avatares, el código, Mercatto y al final mi nombre.
  * La versión anterior sigue en /old.
  */
 import Base from '../layouts/Base.astro';
 import Counter from '../components/react/Counter';
 import { asset, BASE } from '../lib/base';
-import { especializaciones, motivoPrivado, pedirAcceso, perfil, proyectos, sobreMi, stack, trayectoria } from '../data/perfil';
+import { datosEstructurados, especializaciones, motivoPrivado, pedirAcceso, perfil, proyectos, resumenRapido, sobreMi, stack, trayectoria } from '../data/perfil';
 
 const [estrella, ...resto] = proyectos;
 
-// Cada capítulo tiene su figura de partículas (en el mismo orden que en el script de abajo)
+// Cada capítulo tiene su figura de partículas (en el mismo orden que en lib/morph-page.ts)
+// y la pregunta con la que empieza.
 const capitulos = [
-  { id: 'hello', nombre: 'Hello' },
-  { id: 'about', nombre: 'About' },
-  { id: 'stack', nombre: 'Stack' },
-  { id: 'tracks', nombre: 'Tracks' },
-  { id: 'work', nombre: 'Work' },
-  { id: 'journey', nombre: 'Journey' },
-  { id: 'contact', nombre: 'Contact' },
-  { id: 'build', nombre: "Let's build" },
-];
+  { id: 'hello', nombre: 'Hello', pregunta: 'Who is Jorge Quintero?' },
+  { id: 'about', nombre: 'About', pregunta: 'What kind of engineer is he?' },
+  { id: 'stack', nombre: 'Stack', pregunta: 'What does he build with?' },
+  { id: 'focus', nombre: 'Focus', pregunta: 'Where does he go deeper?' },
+  { id: 'work', nombre: 'Work', pregunta: 'What has he shipped?' },
+  { id: 'journey', nombre: 'Journey', pregunta: 'How did he get here?' },
+  { id: 'contact', nombre: 'Contact', pregunta: 'How do we start?' },
+  { id: 'build', nombre: 'Signed', pregunta: 'git commit -S -m "Jorge Quintero"' },
+] as const;
+const pregunta = (id: (typeof capitulos)[number]['id']) => capitulos.find((c) => c.id === id)!.pregunta;
+
+// Atajos de la portada: las preguntas que se pueden hacer, cada una salta a su capítulo
+const atajos = capitulos.slice(1, 7);
 
 const imagenes = {
   foto: asset('foto-real.webp'),
@@ -33,34 +39,46 @@ const imagenes = {
   hero: asset('avatar/hero.webp'),
 };
 
-const botones = [
+const urlSitio = Astro.site ? new URL(BASE, Astro.site).href : BASE;
+const jsonLd = JSON.stringify(datosEstructurados(urlSitio));
+
+const redes = [
   { texto: 'LinkedIn', url: perfil.enlaces.linkedin },
   { texto: 'GitHub', url: perfil.enlaces.github },
+  { texto: 'Upwork', url: perfil.enlaces.upwork },
   { texto: 'X', url: perfil.enlaces.x },
 ];
 ---
 
 <Base
   title={`${perfil.nombre} · ${perfil.rol}`}
-  description={`${perfil.nombre}, ${perfil.rol.toLowerCase()} in ${perfil.ubicacion}. I turn your idea into software that drives your business.`}
+  description={`${perfil.nombre}, ${perfil.rol.toLowerCase()} in ${perfil.ubicacion}. ${perfil.lema} ${perfil.resumen}`}
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={jsonLd} />
+    <link rel="alternate" type="application/json" href={`${BASE}profile.json`} title="Machine-readable profile" />
+    <link rel="alternate" type="text/plain" href={`${BASE}llms.txt`} title="Profile for AI assistants" />
+  </Fragment>
+
   <!-- La nube de partículas vive detrás de todo el contenido -->
-  <canvas class="fixed inset-0 -z-0 h-svh w-full" data-morph data-imagenes={JSON.stringify(imagenes)} aria-hidden="true"></canvas>
+  <canvas class="morph-canvas fixed inset-0 z-0 h-svh w-full" data-morph data-imagenes={JSON.stringify(imagenes)} aria-hidden="true"></canvas>
   <div class="morph-veil pointer-events-none fixed inset-0 z-0" aria-hidden="true"></div>
 
+  <a href="#about" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 btn btn-light">Skip to content</a>
+
   <!-- Encabezado -->
-  <header class="fixed inset-x-0 top-0 z-40 pt-[env(safe-area-inset-top)]">
+  <header class="site-header fixed inset-x-0 top-0 z-40 pt-[env(safe-area-inset-top)]">
     <nav class="gutter mx-auto flex h-16 max-w-7xl items-center justify-between gap-3" aria-label="Main">
-      <a href="#hello" class="flex min-h-11 items-center gap-3">
+      <a href="#hello" class="flex min-h-11 shrink-0 items-center gap-3" aria-label="Jorge Quintero, back to top">
         <span class="grid size-9 place-items-center rounded-lg bg-cream text-sm font-extrabold text-shirt">JQ</span>
         <span class="hidden text-[0.95rem] font-bold tracking-tight text-cream sm:inline">Jorge Quintero</span>
       </a>
-      <p class="font-mono text-[0.7rem] tracking-[0.14em] text-ice uppercase lg:hidden" aria-live="polite">
-        <span data-cap-num>01</span>/<span>{String(capitulos.length).padStart(2, '0')}</span> · <span data-cap-nombre>Hello</span>
+      <p class="min-w-0 truncate font-mono text-[0.7rem] tracking-[0.14em] text-ice uppercase lg:hidden" aria-hidden="true">
+        <span data-cap-num>01</span>/{String(capitulos.length).padStart(2, '0')} · <span data-cap-nombre>Hello</span>
       </p>
-      <div class="flex items-center gap-2">
+      <div class="flex shrink-0 items-center gap-2">
         <a href={`${BASE}old/`} class="hidden min-h-11 items-center px-3 text-sm text-cream-dim hover:text-cream md:inline-flex">Old version</a>
-        <a href="#contact" class="btn btn-primary">Let's talk</a>
+        <a href="#contact" class="btn btn-primary">Contact</a>
       </div>
     </nav>
     <div class="h-0.5 origin-left bg-accent" style="transform:scaleX(0)" data-barra></div>
@@ -70,10 +88,12 @@ const botones = [
   <nav class="fixed top-1/2 right-6 z-30 hidden -translate-y-1/2 lg:block" aria-label="Chapters">
     <ol class="flex flex-col gap-1">
       {
-        capitulos.map((c) => (
+        capitulos.map((c, i) => (
           <li>
-            <a href={`#${c.id}`} class="cap-link group flex min-h-8 items-center justify-end gap-3 text-xs text-cream-dim transition-colors hover:text-cream" data-cap={c.id}>
-              <span class="cap-label translate-x-1 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100">{c.nombre}</span>
+            <a href={`#${c.id}`} class="cap-link group flex min-h-8 items-center justify-end gap-3 text-xs text-cream-dim transition-colors hover:text-cream" data-cap={c.id} data-nombre={c.nombre}>
+              <span class="cap-label translate-x-1 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100">
+                <span class="font-mono text-cream/40">{String(i + 1).padStart(2, '0')}</span> {c.nombre}
+              </span>
               <span class="cap-dot h-px w-4 bg-cream/40 transition-all" />
             </a>
           </li>
@@ -83,214 +103,285 @@ const botones = [
   </nav>
 
   <main class="relative z-10">
-    <!-- 1 · Hola: tu foto real hecha de partículas -->
-    <section id="hello" class="escena" data-escena>
-      <div class="panel-escena">
-        <p class="eyebrow flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span class="h-px w-8 bg-accent"></span>{perfil.rol} <span class="text-cream/40">/</span> {perfil.ubicacion}
-        </p>
-        <h1 class="mt-5 font-display text-[clamp(3.4rem,13vw,7.5rem)] leading-[0.92] text-cream" data-titulo>
-          Jorge <em class="text-ice">Quintero</em><span class="text-accent">.</span>
-        </h1>
-        <p class="mt-6 max-w-lg text-lg leading-relaxed text-cream-dim">
-          I turn your idea into software that drives your business: software, APIs and integrations that scale with React, Next.js, Spring Boot, GCP and AI agents.
-        </p>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a href="#work" class="btn btn-light">See my work</a>
-          <a href={`mailto:${perfil.enlaces.email}`} class="btn btn-ghost">Email me</a>
+    <!-- 1 · Hola: mi foto real hecha de partículas -->
+    <section id="hello" class="escena escena-hero" data-escena>
+      <div class="columna">
+        <p class="prompt" data-prompt>{pregunta('hello')}</p>
+        <div class="panel-escena" data-panel>
+          <p class="eyebrow flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span class="h-px w-8 bg-accent"></span>{perfil.rol} <span class="text-cream/40">/</span> {perfil.ubicacion}
+          </p>
+          <h1 class="mt-4 font-display text-[clamp(3.2rem,13vw,7rem)] leading-[0.92] text-cream" data-titulo>
+            Jorge <em class="text-ice">Quintero</em><span class="text-accent">.</span>
+          </h1>
+          <p class="mt-5 max-w-lg text-lg leading-relaxed text-cream-dim">
+            {perfil.lema} <span class="text-cream">{perfil.resumen}</span>
+          </p>
+
+          <!-- Resumen rápido: lo primero que busca quien evalúa un perfil -->
+          <dl class="brief mt-7">
+            {
+              resumenRapido.map((r) => (
+                <div>
+                  <dt>{r.etiqueta}</dt>
+                  <dd>{r.valor}</dd>
+                </div>
+              ))
+            }
+          </dl>
+
+          <div class="mt-7">
+            <p class="font-mono text-[0.7rem] tracking-[0.14em] text-cream/50 uppercase">Ask me</p>
+            <ul class="mt-3 flex flex-wrap gap-2">
+              {
+                atajos.map((a) => (
+                  <li>
+                    <a href={`#${a.id}`} class="chip">
+                      {a.pregunta}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
         </div>
-        <p class="mt-12 flex items-center gap-3 font-mono text-xs text-cream-dim">
+        <p class="mt-8 hidden items-center gap-3 font-mono text-xs text-cream-dim lg:flex">
           <span class="scroll-hint relative h-9 w-5 rounded-full border border-cream/30"></span>
-          Scroll: the same particles rebuild me in every chapter.
+          Scroll: every answer rebuilds me out of the same particles.
         </p>
       </div>
     </section>
 
     <!-- 2 · Sobre mí: avatar en tres cuartos -->
     <section id="about" class="escena" data-escena>
-      <div class="panel-escena">
-        <p class="eyebrow">About</p>
-        <h2 class="titulo-escena" data-titulo>From layouts to APIs, <em>one project at a time.</em></h2>
-        <div class="mt-6 space-y-4 leading-relaxed text-cream-dim">
-          {sobreMi.parrafos.slice(0, 2).map((p) => <p>{p}</p>)}
+      <div class="columna">
+        <p class="prompt" data-prompt>{pregunta('about')}</p>
+        <div class="panel-escena" data-panel>
+          <h2 class="titulo-escena" data-titulo>Close to the business, <em>deep in the code.</em></h2>
+          <div class="mt-5 space-y-4 leading-relaxed text-cream-dim">
+            {sobreMi.parrafos.slice(0, 2).map((p) => <p>{p}</p>)}
+          </div>
+          <dl class="mt-7 grid grid-cols-3 gap-4 border-t border-cream/10 pt-6">
+            {
+              sobreMi.datos.map((d) => (
+                <div>
+                  <dt class="sr-only">{d.etiqueta}</dt>
+                  <dd class="font-display text-[2.4rem] leading-none text-cream">
+                    <Counter client:visible valor={d.valor} sufijo={d.sufijo} />
+                  </dd>
+                  <dd class="mt-2 text-xs leading-snug text-cream-dim">{d.etiqueta}</dd>
+                </div>
+              ))
+            }
+          </dl>
         </div>
-        <dl class="mt-8 grid grid-cols-3 gap-4 border-t border-cream/10 pt-6">
-          {
-            sobreMi.datos.map((d) => (
-              <div>
-                <dt class="sr-only">{d.etiqueta}</dt>
-                <dd class="font-display text-[2.4rem] leading-none text-cream">
-                  <Counter client:visible valor={d.valor} sufijo={d.sufijo} />
-                </dd>
-                <dd class="mt-2 text-xs leading-snug text-cream-dim">{d.etiqueta}</dd>
-              </div>
-            ))
-          }
-        </dl>
       </div>
     </section>
 
     <!-- 3 · Stack: las partículas forman el símbolo de código -->
     <section id="stack" class="escena" data-escena>
-      <div class="panel-escena">
-        <p class="eyebrow">Stack</p>
-        <h2 class="titulo-escena" data-titulo>The tools I use <em>to build.</em></h2>
-        <div class="mt-7 space-y-5">
-          {
-            stack.map((g) => (
-              <div>
-                <h3 class="font-mono text-xs tracking-[0.14em] text-ice uppercase">{g.grupo}</h3>
-                <ul class="mt-3 flex flex-wrap gap-2">
-                  {g.items.map((i) => (
-                    <li class="rounded-full border border-cream/15 bg-shirt-2/70 px-3 py-1.5 text-sm text-cream">{i}</li>
-                  ))}
-                </ul>
-              </div>
-            ))
-          }
+      <div class="columna">
+        <p class="prompt" data-prompt>{pregunta('stack')}</p>
+        <div class="panel-escena" data-panel>
+          <h2 class="titulo-escena" data-titulo>From the interface <em>to the cloud.</em></h2>
+          <div class="mt-6 space-y-5">
+            {
+              stack.map((g) => (
+                <div>
+                  <h3 class="font-mono text-xs tracking-[0.14em] text-ice uppercase">{g.grupo}</h3>
+                  <ul class="mt-3 flex flex-wrap gap-2">
+                    {g.items.map((i) => (
+                      <li class="rounded-full border border-cream/15 bg-shirt-2/70 px-3 py-1.5 text-sm text-cream">{i}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            }
+          </div>
         </div>
       </div>
     </section>
 
     <!-- 4 · Especializaciones: avatar de perfil -->
-    <section id="tracks" class="escena" data-escena>
-      <div class="panel-escena">
-        <p class="eyebrow">Specializations</p>
-        <h2 class="titulo-escena" data-titulo>Three tracks I keep <em>going deeper on.</em></h2>
-        <ul class="mt-7 space-y-3">
-          {
-            especializaciones.map((e) => (
-              <li class="rounded-2xl border border-cream/10 bg-shirt-2/80 p-5 backdrop-blur">
-                <div class="flex items-start justify-between gap-4">
-                  <div>
-                    <p class="font-display text-[2rem] leading-none text-cream">{e.tecnologia}</p>
-                    <p class="mt-1 text-sm text-cream-dim">{e.titulo}: {e.texto}</p>
+    <section id="focus" class="escena" data-escena>
+      <div class="columna">
+        <p class="prompt" data-prompt>{pregunta('focus')}</p>
+        <div class="panel-escena" data-panel>
+          <h2 class="titulo-escena" data-titulo>Three tracks I keep <em>sharpening.</em></h2>
+          <ul class="mt-6 space-y-3">
+            {
+              especializaciones.map((e) => (
+                <li class="tarjeta">
+                  <div class="flex items-start gap-4">
+                    <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-accent font-mono text-xs font-bold text-white">{e.sigla}</span>
+                    <div class="min-w-0">
+                      <h3 class="font-display text-[1.9rem] leading-none text-cream">{e.tecnologia}</h3>
+                      <p class="mt-1.5 text-sm leading-relaxed text-cream-dim">
+                        <span class="text-cream">{e.titulo}.</span> {e.texto}
+                      </p>
+                      <ul class="mt-3 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[0.7rem] text-ice/80">
+                        {e.temas.map((t) => (
+                          <li>#{t.toLowerCase().replaceAll(' ', '-')}</li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-accent font-mono text-xs font-bold text-white">{e.sigla}</span>
-                </div>
-                <a
-                  href={e.privado ? pedirAcceso(`${e.tecnologia} track`) : e.repo}
-                  target={e.privado ? undefined : '_blank'}
-                  rel={e.privado ? undefined : 'noopener'}
-                  class="btn btn-ghost mt-4"
-                >
-                  {e.privado ? '🔒 Request repo access' : 'Explore the repo ↗'}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
+                  <a
+                    href={e.privado ? pedirAcceso(`${e.tecnologia} track`) : e.repo}
+                    target={e.privado ? undefined : '_blank'}
+                    rel={e.privado ? undefined : 'noopener'}
+                    class="btn btn-ghost mt-4"
+                  >
+                    {e.privado ? '🔒 Request repo access' : 'Explore the repo ↗'}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
       </div>
     </section>
 
     <!-- 5 · Trabajo: la nube se convierte en la pantalla de Mercatto -->
     <section id="work" class="escena" data-escena>
-      <div class="panel-escena">
-        <p class="eyebrow">Selected work</p>
-        <h2 class="titulo-escena" data-titulo>Products I have <em>shipped.</em></h2>
-        {
-          estrella && (
-            <article class="mt-7 rounded-2xl border border-accent/40 bg-shirt-2/85 p-5 backdrop-blur sm:p-6">
-              <p class="font-mono text-[0.7rem] tracking-wider text-emerald-400 uppercase">● Live in production</p>
-              <h3 class="mt-2 font-display text-[2.4rem] leading-none text-cream">{estrella.nombre}</h3>
-              <p class="mt-3 leading-relaxed text-cream-dim">{estrella.descripcion}</p>
-              <p class="mt-3 font-mono text-xs text-cream/50">{estrella.tags.join(' · ')}</p>
-              <div class="mt-5 flex flex-wrap gap-2">
-                {estrella.demo && (
-                  <a href={estrella.demo} target="_blank" rel="noopener" class="btn btn-primary">
-                    Open the live app ↗
-                  </a>
-                )}
-                <a href={estrella.privado ? pedirAcceso(estrella.nombre) : estrella.repo} class="btn btn-ghost">
-                  {estrella.privado ? '🔒 Request code access' : 'View code ↗'}
-                </a>
-              </div>
-            </article>
-          )
-        }
-        <ul class="mt-3 grid gap-3">
+      <div class="columna">
+        <p class="prompt" data-prompt>{pregunta('work')}</p>
+        <div class="panel-escena" data-panel>
+          <h2 class="titulo-escena" data-titulo>Products running <em>in the real world.</em></h2>
           {
-            resto.map((p) => (
-              <li class="rounded-2xl border border-cream/10 bg-shirt-2/80 p-5 backdrop-blur">
-                <div class="flex items-baseline justify-between gap-4">
-                  <h3 class="font-display text-[1.7rem] leading-none text-cream">{p.nombre}</h3>
-                  <span class="font-mono text-xs text-ice">{p.anio}</span>
+            estrella && (
+              <article class="tarjeta mt-6 border-accent/40 p-0">
+                <img src={asset('mercatto.webp')} alt={`${estrella.nombre} sign-in screen`} width="960" height="600" loading="lazy" class="aspect-[16/10] w-full object-cover object-top" />
+                <div class="p-5 sm:p-6">
+                  <p class="font-mono text-[0.7rem] tracking-wider text-emerald-400 uppercase">● Live in production · {estrella.anio}</p>
+                  <h3 class="mt-2 font-display text-[2.4rem] leading-none text-cream">{estrella.nombre}</h3>
+                  <p class="mt-3 leading-relaxed text-cream-dim">{estrella.descripcion}</p>
+                  <p class="mt-3 font-mono text-xs text-cream/50">{estrella.tags.join(' · ')}</p>
+                  <div class="mt-5 flex flex-wrap gap-2">
+                    {estrella.demo && (
+                      <a href={estrella.demo} target="_blank" rel="noopener" class="btn btn-primary">
+                        Open the live app ↗
+                      </a>
+                    )}
+                    <a href={estrella.privado ? pedirAcceso(estrella.nombre) : estrella.repo} class="btn btn-ghost">
+                      {estrella.privado ? '🔒 Request code access' : 'View code ↗'}
+                    </a>
+                  </div>
                 </div>
-                <p class="mt-2 text-sm leading-relaxed text-cream-dim">{p.descripcion}</p>
-                <a
-                  href={p.privado ? pedirAcceso(p.nombre) : p.repo}
-                  target={p.privado ? undefined : '_blank'}
-                  rel={p.privado ? undefined : 'noopener'}
-                  class="btn btn-ghost mt-4"
-                >
-                  {p.privado ? '🔒 Request code access' : 'View code ↗'}
-                </a>
-              </li>
-            ))
+              </article>
+            )
           }
-        </ul>
-        <p class="mt-4 text-xs leading-relaxed text-cream/50">{motivoPrivado}</p>
+          <ul class="mt-3 grid gap-3">
+            {
+              resto.map((p) => (
+                <li class="tarjeta">
+                  <div class="flex items-baseline justify-between gap-4">
+                    <h3 class="font-display text-[1.7rem] leading-none text-cream">{p.nombre}</h3>
+                    <span class="font-mono text-xs text-ice">{p.anio}</span>
+                  </div>
+                  <p class="mt-2 text-sm leading-relaxed text-cream-dim">{p.descripcion}</p>
+                  <p class="mt-2 font-mono text-[0.7rem] text-cream/45">{p.tags.join(' · ')}</p>
+                  <a
+                    href={p.privado ? pedirAcceso(p.nombre) : p.repo}
+                    target={p.privado ? undefined : '_blank'}
+                    rel={p.privado ? undefined : 'noopener'}
+                    class="btn btn-ghost mt-4"
+                  >
+                    {p.privado ? '🔒 Request code access' : 'View code ↗'}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="mt-4 text-xs leading-relaxed text-cream/50">{motivoPrivado}</p>
+        </div>
       </div>
     </section>
 
     <!-- 6 · Trayectoria: avatar mirando hacia arriba -->
     <section id="journey" class="escena" data-escena>
-      <div class="panel-escena">
-        <p class="eyebrow">Journey</p>
-        <h2 class="titulo-escena" data-titulo>From my first commit <em>to production.</em></h2>
-        <ol class="relative mt-7 border-l border-cream/15 pl-6">
-          {
-            [...trayectoria].reverse().map((t, i) => (
-              <li class="relative pb-7 last:pb-0">
-                <span class:list={['absolute top-1.5 left-[-29px] size-2.5 rounded-full border border-accent', i === 0 ? 'bg-accent' : 'bg-shirt']} />
-                <p class="font-mono text-sm text-ice">{t.anio}</p>
-                <p class="mt-1 font-display text-[1.6rem] leading-tight text-cream">{t.titulo}</p>
-                <p class="mt-1 text-sm leading-relaxed text-cream-dim">{t.texto}</p>
-              </li>
-            ))
-          }
-        </ol>
+      <div class="columna">
+        <p class="prompt" data-prompt>{pregunta('journey')}</p>
+        <div class="panel-escena" data-panel>
+          <h2 class="titulo-escena" data-titulo>From a first commit <em>to production.</em></h2>
+          <ol class="relative mt-7 border-l border-cream/15 pl-6">
+            {
+              [...trayectoria].reverse().map((t, i) => (
+                <li class="relative pb-7 last:pb-0">
+                  <span class:list={['absolute top-1.5 left-[-29px] size-2.5 rounded-full border border-accent', i === 0 ? 'bg-accent' : 'bg-shirt']} />
+                  <p class="font-mono text-sm text-ice">{t.anio}</p>
+                  <h3 class="mt-1 font-display text-[1.6rem] leading-tight text-cream">{t.titulo}</h3>
+                  <p class="mt-1 text-sm leading-relaxed text-cream-dim">{t.texto}</p>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
       </div>
     </section>
 
     <!-- 7 · Contacto: avatar completo con brazos cruzados -->
     <section id="contact" class="escena" data-escena>
-      <div class="panel-escena">
-        <p class="eyebrow">Contact</p>
-        <h2 class="titulo-escena" data-titulo>Have a project in mind? <em>Let's talk.</em></h2>
-        <p class="mt-5 text-lg leading-relaxed text-cream-dim">I am open to full-time roles, freelance projects and collaborations. I usually reply within a day.</p>
-        <div class="mt-7 flex flex-wrap gap-3">
-          <a href={`mailto:${perfil.enlaces.email}`} class="btn btn-primary min-h-12 px-6 text-base">✉ Email me</a>
-          <a href={perfil.enlaces.upwork} target="_blank" rel="noopener" class="btn btn-light min-h-12 px-6 text-base">Hire me on Upwork ↗</a>
+      <div class="columna">
+        <p class="prompt" data-prompt>{pregunta('contact')}</p>
+        <div class="panel-escena" data-panel>
+          <h2 class="titulo-escena" data-titulo>With a message. <em>Let's build it together.</em></h2>
+          <p class="mt-5 text-lg leading-relaxed text-cream-dim">
+            Tell me about the idea, the product or the team, and what you would like to build. I read every message and usually reply within a day.
+          </p>
+          <div class="tarjeta mt-6">
+            <p class="font-mono text-[0.7rem] tracking-[0.14em] text-cream/50 uppercase">Email</p>
+            <p class="mt-2 font-mono text-[clamp(0.85rem,4vw,1.15rem)] break-all text-cream">{perfil.enlaces.email}</p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <a href={`mailto:${perfil.enlaces.email}`} class="btn btn-primary min-h-12 px-6 text-base">✉ Write to me</a>
+              <button type="button" class="btn btn-ghost min-h-12" data-copiar={perfil.enlaces.email}>
+                <span data-copiar-texto>Copy email</span>
+              </button>
+            </div>
+          </div>
+          <ul class="mt-4 flex flex-wrap gap-2">
+            {
+              redes.map((r) => (
+                <li>
+                  <a href={r.url} target="_blank" rel="noopener" class="btn btn-ghost">
+                    {r.texto} ↗
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
         </div>
-        <p class="mt-4 font-mono text-sm break-all text-cream-dim">{perfil.enlaces.email}</p>
       </div>
     </section>
 
-    <!-- 8 · Cierre: las partículas escriben tu nombre -->
+    <!-- 8 · Cierre: las partículas escriben mi nombre como la firma del commit -->
     <section id="build" class="escena escena-final" data-escena>
-      <div class="panel-escena panel-final">
-        <p class="font-mono text-xs text-emerald-400">✓ build complete · deployed to production</p>
-        <p class="sr-only">Jorge Quintero</p>
-        <div class="mt-5 flex flex-wrap justify-center gap-3">
-          <a href={`mailto:${perfil.enlaces.email}`} class="btn btn-primary min-h-12 px-6 text-base">✉ Email me</a>
-          <a href={perfil.enlaces.upwork} target="_blank" rel="noopener" class="btn btn-light min-h-12 px-6 text-base">Hire me on Upwork ↗</a>
+      <div class="columna columna-final">
+        <p class="prompt prompt-final" data-prompt>{pregunta('build')}</p>
+        <div class="panel-final" data-panel>
+          <h2 class="sr-only">Jorge Quintero</h2>
+          <p class="font-mono text-xs text-emerald-400">✓ signed and deployed · {perfil.ubicacion}</p>
+          <div class="mt-5 flex flex-wrap justify-center gap-2">
+            <a href={`mailto:${perfil.enlaces.email}`} class="btn btn-primary min-h-12 px-6 text-base">✉ {perfil.enlaces.email}</a>
+          </div>
+          <ul class="mt-3 flex flex-wrap justify-center gap-2">
+            {
+              redes.map((r) => (
+                <li>
+                  <a href={r.url} target="_blank" rel="noopener" class="btn btn-ghost">
+                    {r.texto} ↗
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <footer class="mt-10 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 pb-[env(safe-area-inset-bottom)] font-mono text-xs text-cream/50">
+            <span>© {new Date().getFullYear()} {perfil.nombre}</span>
+            <a href={`${BASE}profile.json`} class="underline underline-offset-4 hover:text-cream">profile.json</a>
+            <a href={`${BASE}llms.txt`} class="underline underline-offset-4 hover:text-cream">llms.txt</a>
+            <a href={`${BASE}old/`} class="underline underline-offset-4 hover:text-cream">Previous version</a>
+          </footer>
         </div>
-        <ul class="mt-3 flex flex-wrap justify-center gap-2">
-          {
-            botones.map((b) => (
-              <li>
-                <a href={b.url} target="_blank" rel="noopener" class="btn btn-ghost">
-                  {b.texto} ↗
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-        <footer class="mt-10 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 pb-[env(safe-area-inset-bottom)] font-mono text-xs text-cream/50">
-          <span>© {new Date().getFullYear()} {perfil.nombre} · {perfil.ubicacion}</span>
-          <a href={`${BASE}old/`} class="underline underline-offset-4 hover:text-cream">See the previous version</a>
-        </footer>
       </div>
     </section>
   </main>

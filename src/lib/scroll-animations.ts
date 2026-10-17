@@ -268,11 +268,24 @@ function finalWord() {
     start: alcanzable(word, 'top', 0.85, 160),
     end: alcanzable(word, 'bottom', 0.45),
     onUpdate: (self) => {
-      progreso = self.progress;
+      // Al llegar al fondo de la página el nombre queda completo aunque el recorrido no alcance
+      const alFondo = scrollY + innerHeight >= document.documentElement.scrollHeight - 8;
+      progreso = alFondo ? 1 : Math.max(progreso, self.progress);
+      pintar();
+    },
+    onLeave: () => {
+      progreso = 1;
       pintar();
     },
     onToggle: (self) => (self.isActive ? gsap.ticker.add(latido) : gsap.ticker.remove(latido)),
   });
+  // También se completa si se llega al final sin pasar por la zona (por ejemplo, con un enlace)
+  addEventListener('scroll', () => {
+    if (progreso < 1 && scrollY + innerHeight >= document.documentElement.scrollHeight - 8) {
+      progreso = 1;
+      pintar();
+    }
+  }, { passive: true });
   pintar();
   gsap.from('[data-final-done]', { opacity: 0, x: -12, duration: 0.8, ease: EASE, scrollTrigger: { trigger: word, start: 'top 85%', once: true } });
   gsap.from('[data-final-row]', {

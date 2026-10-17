@@ -8,13 +8,13 @@ const datos = [
   { clave: 'role', valor: perfil.rol },
   { clave: 'based', valor: perfil.ubicacion },
   { clave: 'email', valor: perfil.enlaces.email },
-  { clave: 'status', valor: 'open to work', estado: true },
+  { clave: 'reply', valor: 'usually within a day' },
 ];
 
 // Los botones de contacto van aparte y se ven como botones, para que quede claro dónde tocar
 const botones = [
   { texto: 'Email me', url: `mailto:${perfil.enlaces.email}`, clase: 'btn-primary', icono: 'mail' },
-  { texto: 'Hire me on Upwork', url: perfil.enlaces.upwork, clase: 'btn-light', icono: 'upwork' },
+  { texto: 'Upwork', url: perfil.enlaces.upwork, clase: 'btn-light', icono: 'upwork' },
   { texto: 'LinkedIn', url: perfil.enlaces.linkedin, clase: 'btn-ghost', icono: 'in' },
   { texto: 'GitHub', url: perfil.enlaces.github, clase: 'btn-ghost', icono: 'gh' },
   { texto: 'X', url: perfil.enlaces.x, clase: 'btn-ghost', icono: 'x' },
@@ -28,7 +28,7 @@ const palabraFinal = ['JORGE', 'QUINTERO'];
   <div class="max-w-2xl">
     <SectionHeading etiqueta="Contact">Have a project in mind? Let's talk.</SectionHeading>
     <p class="mt-6 text-lg leading-relaxed text-cream-dim" data-reveal>
-      I am open to full-time roles, freelance projects and collaborations. The build is done; the next one can be yours.
+      If you have an idea, a product or a team where my work can help, write to me. The build is done; the next one can be ours.
     </p>
   </div>
 
@@ -82,8 +82,8 @@ const palabraFinal = ['JORGE', 'QUINTERO'];
           datos.map((d) => (
             <div class="flex min-w-0 gap-2 pl-4" data-final-row>
               <dt class="shrink-0 text-ice">{d.clave}:</dt>
-              <dd class:list={['min-w-0 truncate', d.estado ? 'text-emerald-400' : 'text-[#f2c48d]']}>
-                '{d.valor}'{d.estado && <span class="ml-1 inline-block size-1.5 animate-pulse rounded-full bg-emerald-400 align-middle" />}
+              <dd class="min-w-0 truncate text-[#f2c48d]">
+                '{d.valor}'
                 <span class="text-cream/40">,</span>
               </dd>
             </div>
