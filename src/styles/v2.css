@@ -1,0 +1,149 @@
+@import 'tailwindcss';
+
+/*
+ * Propuesta 2: estilo editorial claro, con los colores del banner de LinkedIn
+ * (papel cálido, salvia y arena) y tinta oscura para el texto y los botones.
+ */
+@theme {
+  --color-paper: #f3efe7;
+  --color-paper-2: #ebe5d9;
+  --color-sand: #e3d5c1;
+  --color-sage: #cad3bf;
+  --color-olive: #5d6b4f;
+  --color-ink: #1c1f23;
+  --color-ink-2: #2a2e33;
+  --color-muted: #676b6f;
+  --color-line: #d9d1c3;
+  --color-blue: #3d63dd;
+  --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+::selection {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* Margen lateral cómodo en celulares, respetando el notch */
+@utility gutter {
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
+  @media (width >= 48rem) {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}
+
+/* Botones: todo lo tocable se ve como botón */
+@layer components {
+  .btn {
+    display: inline-flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    border-radius: 9999px;
+    padding: 0 1.4rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background-color 0.25s, color 0.25s, border-color 0.25s, transform 0.25s;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn-dark {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .btn-dark:hover {
+    background: var(--color-olive);
+  }
+  .btn-line {
+    border: 1.5px solid var(--color-ink);
+    color: var(--color-ink);
+  }
+  .btn-line:hover {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .btn-paper {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  .btn-paper:hover {
+    background: var(--color-sage);
+  }
+  .btn-ghost-light {
+    border: 1.5px solid rgb(243 239 231 / 0.35);
+    color: var(--color-paper);
+  }
+  .btn-ghost-light:hover {
+    border-color: var(--color-paper);
+    background: rgb(243 239 231 / 0.08);
+  }
+  .btn-sm {
+    min-height: 2.6rem;
+    padding: 0 1.05rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Etiqueta pequeña sobre los títulos */
+@utility kicker {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-olive);
+}
+
+/* Arco del banner de LinkedIn */
+.arch {
+  border-radius: 999px 999px 1.5rem 1.5rem;
+}
+
+/* Cinta de tecnologías que se mueve sola */
+.ticker {
+  animation: ticker 40s linear infinite;
+}
+@keyframes ticker {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Tarjeta de servicio: el número se rellena al pasar el cursor */
+.service:hover .service-n {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
