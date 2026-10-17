@@ -1,0 +1,167 @@
+@import 'tailwindcss';
+
+/* Paleta tomada de la camiseta del avatar: azul noche de fondo, crema para el texto, azul vivo de acento */
+@theme {
+  --color-shirt: #1e2129;
+  --color-shirt-2: #252a35;
+  --color-shirt-3: #2e3442;
+  --color-cream: #f3ecdf;
+  --color-cream-dim: #b8b2a6;
+  --color-accent: #4f7cff;
+  --color-accent-deep: #3460f0;
+  --color-ice: #a9c1ff;
+  --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html {
+  background: var(--color-shirt);
+  color: var(--color-cream);
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: transparent;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ice);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@utility panel {
+  @apply backlit;
+  background: rgb(37 42 53 / 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgb(243 236 223 / 0.08);
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ice);
+}
+
+/* Luz azul detrás del avatar para separarlo del fondo (la camiseta es del mismo color) */
+.avatar-glow {
+  background: radial-gradient(closest-side, rgb(79 124 255 / 0.55), rgb(79 124 255 / 0.18) 55%, transparent 100%);
+}
+.avatar-img {
+  filter: drop-shadow(0 0 1px rgb(169 193 255 / 0.55));
+}
+
+/* Halo azul detrás de la vista previa de Mercatto */
+.showcase-glow {
+  background: radial-gradient(60% 60% at 50% 50%, rgb(79 124 255 / 0.35), transparent 70%);
+  filter: blur(20px);
+}
+
+/* Nombre de la especialización: solo contorno, se rellena al pasar el cursor */
+.spec-name {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(169 193 255 / 0.55);
+  background: linear-gradient(90deg, var(--color-cream), var(--color-ice)) no-repeat 0 0 / 0% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  transition: background-size 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.group:hover .spec-name,
+.group:focus-visible .spec-name {
+  background-size: 100% 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: clip;
+}
+
+/* Margen lateral que respeta el notch y las barras del sistema en iPhone y Android */
+@utility gutter {
+  padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+  @variant sm {
+    padding-left: max(2rem, env(safe-area-inset-left, 0px));
+    padding-right: max(2rem, env(safe-area-inset-right, 0px));
+  }
+}
+
+/* Tarjetas con luz de fondo que sigue al cursor */
+@utility backlit {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(260px circle at var(--mx, 50%) var(--my, -30%), rgb(79 124 255 / 0.22), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  &:hover::before {
+    opacity: 1;
+  }
+}
+
+/* Los anchors no quedan tapados por el encabezado fijo */
+section[id] {
+  scroll-margin-top: calc(4rem + env(safe-area-inset-top, 0px));
+}
+
+/* Luz suave que sigue al cursor por detrás del contenido */
+.cursor-light {
+  background: radial-gradient(closest-side, rgb(79 124 255 / 0.16), rgb(79 124 255 / 0.05) 55%, transparent);
+  translate: -50% -50%;
+}
+
+/* Grano de película muy sutil encima de todo */
+.grain {
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+/* Cintas: versión en contorno */
+.marquee-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(243 236 223 / 0.35);
+}
+
+/* Texto gigante del contacto: contorno que se rellena con el scroll (--fill de 0 a 100) */
+.mega-text {
+  font-size: clamp(3rem, 12.5vw, 11rem);
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(169 193 255 / 0.5);
+  background: linear-gradient(100deg, var(--color-cream) 0%, var(--color-ice) 45%, var(--color-accent) 100%) no-repeat 0 0 /
+    calc(var(--fill, 0) * 1%) 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.mega-text:hover {
+  -webkit-text-stroke-color: var(--color-ice);
+}

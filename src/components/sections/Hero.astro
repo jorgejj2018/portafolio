@@ -1,0 +1,68 @@
+---
+import AvatarPose from '../ui/AvatarPose.astro';
+import Counter from '../react/Counter';
+import { perfil, roles, sobreMi } from '../../data/perfil';
+---
+
+<section id="home" data-station="0" class="relative grid min-h-svh items-center gap-8 pt-28 pb-16 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10" data-hero>
+  <div class="order-2 lg:order-1" data-hero-copy>
+    <p class="eyebrow flex flex-wrap items-center gap-x-3 gap-y-1" data-hero-item>
+      <span class="h-px w-8 bg-accent" aria-hidden="true"></span>
+      <span class="text-cream" data-roles={JSON.stringify(roles)} aria-live="off">{roles[0]}</span>
+      <span class="text-cream/40">/</span>
+      <span>{perfil.ubicacion}</span>
+    </p>
+    <h1
+      class="mt-5 font-display text-[clamp(3.1rem,10vw,6.5rem)] leading-[0.92] font-extrabold tracking-[-0.03em] text-cream"
+      data-hero-title
+    >
+      Jorge<br />Quintero<span class="text-accent">.</span>
+    </h1>
+    <p class="mt-7 max-w-xl text-lg leading-relaxed text-cream-dim" data-hero-item>
+      I turn your idea into software that drives your business. Software, APIs and integrations that scale with{' '}
+      <span class="text-cream">React</span>, <span class="text-cream">Next.js</span>, <span class="text-cream">Spring Boot</span>,{' '}
+      <span class="text-cream">GCP</span>{' and '}<span class="text-cream">AI agents</span>. Creator of <a href="#projects" class="text-cream underline decoration-accent decoration-2 underline-offset-4 hover:text-ice">Mercatto SaaS</a>.
+    </p>
+    <div class="mt-9 flex flex-wrap items-center gap-3" data-hero-item>
+      <a href="#projects" data-magnetic class="inline-flex min-h-12 items-center rounded-full bg-cream px-6 font-semibold text-shirt transition hover:bg-white">
+        See projects
+      </a>
+      <a
+        href={perfil.enlaces.github}
+        target="_blank"
+        rel="noopener"
+        data-magnetic
+        class="inline-flex min-h-12 items-center rounded-full border border-cream/20 px-6 font-semibold text-cream transition hover:border-cream/50"
+      >
+        GitHub ↗
+      </a>
+    </div>
+    <dl class="mt-12 grid max-w-lg grid-cols-3 gap-4 border-t border-cream/10 pt-6 sm:gap-6" data-hero-item>
+      {
+        sobreMi.datos.map((d) => (
+          <div>
+            <dt class="sr-only">{d.etiqueta}</dt>
+            <dd class="font-display text-[clamp(1.6rem,5vw,1.9rem)] font-bold text-cream">
+              <Counter client:visible valor={d.valor} sufijo={d.sufijo} />
+            </dd>
+            <dd class="mt-1 text-xs leading-snug text-cream-dim">{d.etiqueta}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+
+  <div class="relative order-1 mx-auto w-full max-w-[14rem] sm:max-w-[18rem] lg:order-2 lg:max-w-[23rem]" data-hero-avatar>
+    <AvatarPose pose="hero" alt="3D avatar of Jorge Quintero with arms crossed" width={587} height={1083} parallax={0} />
+    <p
+      class="absolute right-[-6%] bottom-[16%] rounded-full border border-cream/15 bg-shirt/85 px-3 py-1.5 font-mono text-[0.7rem] whitespace-nowrap text-cream backdrop-blur sm:text-xs"
+      data-hero-badge
+    >
+      <span class="mr-1.5 inline-block size-1.5 animate-pulse rounded-full bg-emerald-400 align-middle"></span>Open to work
+    </p>
+  </div>
+
+  <a href="#about" class="order-3 col-span-full hidden items-center gap-3 font-mono text-xs tracking-[0.14em] text-cream-dim uppercase lg:flex" data-hero-item>
+    <span class="h-px w-10 bg-cream/30"></span> Scroll to explore ↓
+  </a>
+</section>

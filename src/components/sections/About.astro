@@ -1,0 +1,22 @@
+---
+import AvatarPose from '../ui/AvatarPose.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import { sobreMi } from '../../data/perfil';
+---
+
+<section id="about" data-station="1" class="grid min-h-svh items-center gap-12 py-28 md:grid-cols-[0.55fr_1.45fr] md:gap-16">
+  <!-- En tres cuartos, mirando hacia el texto -->
+  <AvatarPose
+    pose="perfil-tres-cuartos"
+    alt="Jorge's avatar in three-quarter view"
+    width={187}
+    height={362}
+    class="mx-auto w-full max-w-[11rem] md:max-w-[14rem]"
+  />
+  <div>
+    <SectionHeading nivel={2} etiqueta="About">From layouts to APIs, one project at a time.</SectionHeading>
+    <div class="mt-8 space-y-5 text-[1.05rem] leading-relaxed text-cream-dim">
+      {sobreMi.parrafos.map((p) => <p data-reveal>{p}</p>)}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,53 @@
+---
+import AvatarPose from '../ui/AvatarPose.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import { perfil } from '../../data/perfil';
+
+// Los dos primeros (correo y Upwork) van más anchos: son los canales principales para contratar
+const canales = [
+  { nombre: 'Email', usuario: perfil.enlaces.email, url: `mailto:${perfil.enlaces.email}` },
+  { nombre: 'Upwork', usuario: 'Hire me on Upwork', url: perfil.enlaces.upwork },
+  { nombre: 'LinkedIn', usuario: '/in/jorgeadj', url: perfil.enlaces.linkedin },
+  { nombre: 'GitHub', usuario: '@jorgejj2018', url: perfil.enlaces.github },
+  { nombre: 'X', usuario: '@jorge_adj', url: perfil.enlaces.x },
+];
+---
+
+<section id="contact" data-station="6" class="flex min-h-svh flex-col justify-center py-28">
+  <div class="grid items-end gap-10 md:grid-cols-[1.4fr_0.6fr]">
+    <div>
+      <SectionHeading nivel={7} etiqueta="Contact">Have a project in mind? Let's talk.</SectionHeading>
+      <p class="mt-6 max-w-xl text-lg leading-relaxed text-cream-dim" data-reveal>
+        I am open to full-time web developer roles, freelance projects and collaborations.
+      </p>
+    </div>
+    <AvatarPose pose="busto-sonrisa" alt="Jorge's avatar smiling" width={241} height={403} class="mx-auto w-full max-w-[10rem] md:max-w-[13rem]" />
+  </div>
+  <ul class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-6" data-stagger>
+    {
+      canales.map((c, i) => (
+        <li data-stagger-item class={i < 2 ? 'lg:col-span-3' : 'lg:col-span-2'}>
+          <a
+            href={c.url}
+            target={c.url.startsWith('mailto:') ? undefined : '_blank'}
+            rel="noopener"
+            class="panel backlit group flex min-h-16 items-center justify-between rounded-2xl px-5 py-4 transition-colors hover:border-accent/70"
+          >
+            <span>
+              <span class="block font-display text-lg font-bold text-cream">{c.nombre}</span>
+              <span class="font-mono text-xs break-all text-cream-dim">{c.usuario}</span>
+            </span>
+            <span class="text-ice transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <!-- Texto gigante que se rellena de color con el scroll -->
+  <a href={`mailto:${perfil.enlaces.email}`} class="mega-text mt-24 block text-center font-display leading-[0.85] font-extrabold tracking-[-0.04em] uppercase" data-mega>
+    Let's build<br />something great
+  </a>
+  <footer class="mt-16 border-t border-cream/10 pt-6 pb-[env(safe-area-inset-bottom)] text-center font-mono text-xs text-cream/50">
+    © {new Date().getFullYear()} {perfil.nombre} · {perfil.ubicacion}
+  </footer>
+</section>

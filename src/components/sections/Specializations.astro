@@ -1,0 +1,47 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import { especializaciones, pedirAcceso } from '../../data/perfil';
+---
+
+<section id="specializations" data-station="3" class="flex min-h-svh flex-col justify-center py-28">
+  <SectionHeading nivel={4} etiqueta="Specializations" class="max-w-2xl">Three tracks I keep going deeper on.</SectionHeading>
+  <p class="mt-4 max-w-2xl text-cream-dim" data-reveal>
+    Each one has its own repository where I practice, break things and document what I learn. They are private because they are my personal study notes and work in progress; click any track to
+    request access by email.
+  </p>
+  <ol class="mt-12 grid gap-4 lg:grid-cols-3" data-stagger>
+    {
+      especializaciones.map((e, i) => (
+        <li data-stagger-item>
+          <a
+            href={e.privado ? pedirAcceso(`${e.tecnologia} track`) : e.repo}
+            target={e.privado ? undefined : '_blank'}
+            rel={e.privado ? undefined : 'noopener'}
+            class="panel backlit group flex h-full min-h-[22rem] flex-col rounded-3xl p-7 transition-colors hover:border-accent/70"
+          >
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs tracking-[0.14em] text-ice uppercase">Track {String(i + 1).padStart(2, '0')}</span>
+              <span class="grid size-11 place-items-center rounded-xl bg-accent font-mono text-sm font-bold text-white transition-transform duration-500 group-hover:rotate-[-8deg] group-hover:scale-110">
+                {e.sigla}
+              </span>
+            </div>
+            <span
+              class="spec-name mt-8 font-display text-[clamp(2.2rem,3.6vw,3rem)] leading-none font-extrabold tracking-[-0.03em]"
+              aria-hidden="true"
+            >
+              {e.tecnologia}
+            </span>
+            <h3 class="mt-4 font-display text-xl font-bold text-cream">
+              <span class="sr-only">{e.tecnologia}: </span>{e.titulo}
+            </h3>
+            <p class="mt-2 flex-1 leading-relaxed text-cream-dim">{e.texto}</p>
+            <ul class="mt-5 flex flex-wrap gap-2">
+              {e.temas.map((t) => <li class="rounded-full border border-cream/15 px-3 py-1 font-mono text-[0.7rem] text-cream/70">{t}</li>)}
+            </ul>
+            <span class="mt-6 border-t border-cream/10 pt-4 text-sm font-semibold text-ice group-hover:text-cream">{e.privado ? '🔒 Private repo · Request access ✉' : 'Explore the repo ↗'}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</section>

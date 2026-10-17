@@ -1,0 +1,35 @@
+---
+interface Props {
+  palabras: string[];
+  /** 1 = hacia la izquierda, -1 = hacia la derecha */
+  direccion?: 1 | -1;
+  variante?: 'solida' | 'contorno';
+  class?: string;
+}
+
+const { palabras, direccion = 1, variante = 'solida', class: className = '' } = Astro.props;
+// Se repite la lista para que la cinta nunca se quede vacía en pantallas anchas
+const fila = [...palabras, ...palabras];
+---
+
+<div class:list={['marquee relative overflow-hidden py-3', className]} data-marquee={direccion} aria-hidden="true">
+  <div class="flex w-max will-change-transform" data-marquee-track>
+    {
+      [0, 1].map(() => (
+        <ul class="flex shrink-0 items-center">
+          {fila.map((p) => (
+            <li
+              class:list={[
+                'flex items-center gap-8 pr-8 font-display text-[clamp(2rem,6vw,4.5rem)] leading-none font-extrabold tracking-[-0.03em] whitespace-nowrap uppercase',
+                variante === 'contorno' ? 'marquee-outline' : 'text-cream',
+              ]}
+            >
+              {p}
+              <span class="inline-block size-3 rotate-45 bg-accent sm:size-4" />
+            </li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+</div>

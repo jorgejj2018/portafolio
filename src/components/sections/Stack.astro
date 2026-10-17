@@ -1,0 +1,30 @@
+---
+import AvatarPose from '../ui/AvatarPose.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import { stack } from '../../data/perfil';
+---
+
+<section id="stack" data-station="2" class="flex min-h-svh flex-col justify-center py-28">
+  <div class="flex items-center justify-between gap-8">
+    <SectionHeading nivel={3} etiqueta="Stack" class="max-w-2xl">The tools I use to build.</SectionHeading>
+    <!-- De perfil, mirando hacia las tarjetas -->
+    <AvatarPose pose="perfil-lado" alt="Jorge's avatar in profile" width={132} height={363} class="hidden w-28 shrink-0 md:block lg:w-32" parallax={0.05} />
+  </div>
+  <div class="mt-12 grid gap-4 md:grid-cols-3" data-stagger>
+    {
+      stack.map((g) => (
+        <div class="panel backlit rounded-2xl p-6" data-stagger-item>
+          <h3 class="font-mono text-xs tracking-[0.14em] text-ice uppercase">{g.grupo}</h3>
+          <ul class="mt-5 grid grid-cols-2 gap-x-4 gap-y-2.5 md:grid-cols-1">
+            {g.items.map((i) => (
+              <li class="flex items-center gap-3 text-cream">
+                <span class="size-1 shrink-0 rounded-full bg-accent" />
+                {i}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</section>

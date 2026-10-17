@@ -1,0 +1,32 @@
+---
+import type { Pose } from '../../types';
+import { asset } from '../../lib/base';
+
+interface Props {
+  pose: Pose;
+  alt: string;
+  width: number;
+  height: number;
+  class?: string;
+  /** Intensidad del desplazamiento con el scroll (0 = quieto) */
+  parallax?: number;
+}
+
+const { pose, alt, width, height, class: className = '', parallax = 0.12 } = Astro.props;
+---
+
+<figure class:list={['relative', className]} data-pose data-parallax={parallax}>
+  <div class="avatar-glow pointer-events-none absolute inset-x-[-25%] top-[-6%] aspect-square" data-pose-glow></div>
+  <img
+    src={asset(`avatar/${pose}.webp`)}
+    alt={alt}
+    width={width}
+    height={height}
+    loading={pose === 'hero' ? 'eager' : 'lazy'}
+    decoding="async"
+    class="avatar-img relative w-full select-none"
+    draggable="false"
+    data-pose-img
+  />
+  <div class="absolute inset-x-[10%] bottom-[1%] h-[4%] rounded-[50%] border border-accent/50 bg-accent/10" aria-hidden="true"></div>
+</figure>

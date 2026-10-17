@@ -1,0 +1,106 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import ProjectExplorer from '../react/ProjectExplorer';
+import { motivoPrivado, pedirAcceso, perfil, proyectos } from '../../data/perfil';
+
+// El proyecto destacado se muestra en vivo; el resto va en la grilla filtrable
+const [estrella, ...resto] = proyectos;
+---
+
+<section id="projects" data-station="4" class="py-28">
+  <div class="flex flex-wrap items-end justify-between gap-6">
+    <SectionHeading nivel={5} etiqueta="Projects" class="max-w-2xl">Products I have shipped.</SectionHeading>
+    <a href={perfil.enlaces.github} target="_blank" rel="noopener" class="inline-flex min-h-11 items-center font-semibold text-ice hover:text-cream" data-reveal>
+      All repositories ↗
+    </a>
+  </div>
+
+  {
+    estrella && (
+      <article class="mt-12 grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+        <div data-reveal>
+          <p class="eyebrow">Featured · Live in production</p>
+          <h3 class="mt-4 font-display text-[clamp(2rem,4.5vw,3rem)] leading-[1.02] font-extrabold tracking-[-0.02em] text-cream">
+            {estrella.nombre}
+          </h3>
+          <p class="mt-4 text-[1.05rem] leading-relaxed text-cream-dim">{estrella.descripcion}</p>
+          <ul class="mt-5 flex flex-wrap gap-2">
+            {estrella.tags.map((t) => <li class="rounded-full border border-cream/15 px-3 py-1 font-mono text-xs text-cream/70">{t}</li>)}
+          </ul>
+          <div class="mt-7 flex flex-wrap gap-3">
+            {estrella.demo && (
+              <a href={estrella.demo} target="_blank" rel="noopener" class="inline-flex min-h-12 items-center rounded-full bg-accent px-6 font-semibold text-white transition hover:bg-accent-deep">
+                Open the live app ↗
+              </a>
+            )}
+            {estrella.privado ? (
+              <a href={pedirAcceso(estrella.nombre)} class="inline-flex min-h-12 items-center rounded-full border border-cream/20 px-6 font-semibold text-cream transition hover:border-cream/50">
+                🔒 Request code access
+              </a>
+            ) : (
+              <a href={estrella.repo} target="_blank" rel="noopener" class="inline-flex min-h-12 items-center rounded-full border border-cream/20 px-6 font-semibold text-cream transition hover:border-cream/50">
+                Code ↗
+              </a>
+            )}
+          </div>
+          {estrella.privado && <p class="mt-4 max-w-md text-sm leading-relaxed text-cream/55">{motivoPrivado}</p>}
+        </div>
+
+        <!-- Ventana de navegador con la app real cargada -->
+        <div class="[perspective:1400px]">
+          <div class="relative" data-showcase>
+            <div class="showcase-glow pointer-events-none absolute -inset-8 -z-10" aria-hidden="true"></div>
+            <div class="overflow-hidden rounded-2xl border border-cream/15 bg-shirt-2 shadow-2xl shadow-accent/20">
+              <div class="flex items-center gap-3 border-b border-cream/10 px-4 py-3">
+                <span class="flex gap-1.5" aria-hidden="true">
+                  <span class="size-2.5 rounded-full bg-[#ff5f57]"></span>
+                  <span class="size-2.5 rounded-full bg-[#febc2e]"></span>
+                  <span class="size-2.5 rounded-full bg-[#28c840]"></span>
+                </span>
+                <span class="flex-1 truncate rounded-md bg-shirt px-3 py-1 text-center font-mono text-[0.7rem] text-cream-dim">
+                  mercattosas.netlify.app
+                </span>
+                <span class="flex items-center gap-1.5 font-mono text-[0.65rem] text-emerald-300 uppercase">
+                  <span class="size-1.5 animate-pulse rounded-full bg-emerald-400"></span>Live
+                </span>
+              </div>
+              <!-- La app se carga a tamaño de escritorio y se reduce para caber en la ventana -->
+              <a href={estrella.demo} target="_blank" rel="noopener" class="group relative block aspect-[16/10] overflow-hidden bg-white" data-mini>
+                <iframe
+                  src={estrella.demo}
+                  title={`${estrella.nombre}, live preview`}
+                  loading="lazy"
+                  tabindex="-1"
+                  class="pointer-events-none absolute top-0 left-0 h-[800px] w-[1280px] origin-top-left"
+                  style="transform:scale(var(--s,0.5))"
+                  referrerpolicy="no-referrer"
+                  sandbox="allow-scripts allow-same-origin"
+                ></iframe>
+                <span class="absolute inset-0 grid place-items-center bg-shirt/0 transition-colors group-hover:bg-shirt/40">
+                  <span class="translate-y-2 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100">
+                    Open the live app ↗
+                  </span>
+                </span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+    )
+  }
+
+  <p class="mt-20 max-w-2xl text-cream-dim" data-reveal>
+    More projects, from my bootcamp sprints to the platforms I build today. Filter by technology. Projects marked with a lock are
+    private repositories: request access by email and I will add you.
+  </p>
+  <div class="mt-8" data-reveal>
+    <ProjectExplorer client:visible proyectos={resto} />
+  </div>
+</section>
+
+<script>
+  // Escala la vista previa (1280 px de ancho) al tamaño real de su ventana
+  document.querySelectorAll<HTMLElement>('[data-mini]').forEach((box) => {
+    new ResizeObserver(([e]) => box.style.setProperty('--s', String(e.contentRect.width / 1280))).observe(box);
+  });
+</script>
