@@ -17,6 +17,8 @@ type Encuadre = {
   alto: number;
   /** Ancho máximo, como fracción del ancho visible */
   anchoMax: number;
+  /** Hasta dónde puede bajar la figura (fracción del alto, desde arriba): ahí empieza el texto */
+  fondoMax?: number;
 };
 
 export type Objetivo =
@@ -32,8 +34,8 @@ type Muestra = {
   movil: Encuadre;
 };
 
-const ENCUADRE_ESCRITORIO: Encuadre = { x: 0.23, y: 0, alto: 0.66, anchoMax: 0.46 };
-const ENCUADRE_MOVIL: Encuadre = { x: 0, y: 0.25, alto: 0.4, anchoMax: 0.9 };
+const ENCUADRE_ESCRITORIO: Encuadre = { x: 0.26, y: 0, alto: 0.66, anchoMax: 0.42, fondoMax: 0.97 };
+const ENCUADRE_MOVIL: Encuadre = { x: 0, y: 0.23, alto: 0.34, anchoMax: 0.86, fondoMax: 0.485 };
 
 const VERT = /* glsl */ `
   attribute vec3 color;
@@ -77,6 +79,9 @@ export class EscenaMorph {
   private giro = { x: 0, y: 0 };
   private visible = true;
   private reloj = new THREE.Clock();
+  /** Entrada: de 0 (galaxia dispersa) a 1 (primera figura armada) */
+  intro = 0;
+  private galaxia: Float32Array;
   listo: Promise<void>;
 
   constructor(
@@ -108,6 +113,13 @@ export class EscenaMorph {
       this.aleatorio.set([v.x, v.y, v.z, Math.random() * Math.PI * 2], i * 4);
     }
     this.desvio = new Float32Array(this.n * 2);
+    // Galaxia inicial: un disco inclinado desde donde se arma la primera figura
+    this.galaxia = new Float32Array(this.n * 3);
+    for (let i = 0; i < this.n; i++) {
+      const r = 1.2 + Math.pow(Math.random(), 0.6) * 5;
+      const a = Math.random() * Math.PI * 2 + r * 0.9;
+      this.galaxia.set([Math.cos(a) * r, Math.sin(a) * r * 0.35 + (Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 1.5], i * 3);
+    }
 
     this.listo = Promise.all(objetivos.map((o) => this.muestrear(o))).then((m) => {
       this.muestras = m;
@@ -227,14 +239,38 @@ export class EscenaMorph {
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     const altoVisible = 2 * this.camera.position.z * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
-    this.vista = { w: altoVisible * this.camera.aspect, h: altoVisible, movil: w < 1024 };
+    // Figura al lado del texto en pantallas anchas o en horizontal; arriba del texto en vertical
+    const lateral = w >= 1024 || (w >= 640 && w / h >= 1.2);
+    this.vista = { w: altoVisible * this.camera.aspect, h: altoVisible, movil: !lateral };
   }
 
   /** Centro y escala (en unidades del mundo) de una muestra según la pantalla. */
   private encuadre(m: Muestra) {
     const e = this.vista.movil ? m.movil : m.escritorio;
-    const alto = Math.min(e.alto * this.vista.h, (e.anchoMax * this.vista.w) / m.aspecto);
-    return { x: e.x * this.vista.w, y: e.y * this.vista.h, alto };
+    // El encabezado ocupa ~76 px arriba: la figura nunca debe quedar debajo de él
+    const hdr = 76 / Math.max(1, this.canvas.clientHeight);
+    let y = e.y;
+    if (!this.vista.movil && e.x !== 0) y -= hdr / 2;
+    const fondo = e.fondoMax ?? 0.97;
+    // arriba = 0.5 - y - a/2 ≥ hdr   ·   abajo = 0.5 - y + a/2 ≤ fondo
+    const a = Math.max(0.05, Math.min(e.alto, 2 * (0.5 - y - hdr), 2 * (fondo - 0.5 + y)));
+    const alto = Math.min(a * this.vista.h, (e.anchoMax * this.vista.w) / m.aspecto);
+    return { x: e.x * this.vista.w, y: y * this.vista.h, alto };
+  }
+
+  /** Rectángulo (en px de pantalla) que ocupa la figura actual. Útil para pruebas de diseño. */
+  cajaPantalla() {
+    const m = this.muestras[Math.round(this.progreso)];
+    if (!m) return null;
+    const e = this.encuadre(m);
+    const W = this.canvas.clientWidth;
+    const H = this.canvas.clientHeight;
+    const ancho = e.alto * m.aspecto;
+    const aPx = (u: number) => (u / this.vista.w) * W;
+    const cx = W / 2 + aPx(e.x);
+    const cy = H / 2 - (e.y / this.vista.h) * H;
+    const hh = (e.alto / this.vista.h) * H;
+    return { left: cx - aPx(ancho) / 2, right: cx + aPx(ancho) / 2, top: cy - hh / 2, bottom: cy + hh / 2 };
   }
 
   private cuadro() {
@@ -245,7 +281,7 @@ export class EscenaMorph {
     const b = Math.min(a + 1, this.muestras.length - 1);
     const f = s - a;
     const e = easeInOut(f);
-    const explosion = Math.sin(Math.PI * f) * (this.vista.movil ? 0.9 : 1.1);
+    const explosion = Math.sin(Math.PI * f) * (this.vista.movil ? 0.9 : 1.4);
     const A = this.muestras[a];
     const B = this.muestras[b];
     const ea = this.encuadre(A);
@@ -295,6 +331,14 @@ export class EscenaMorph {
       this.desvio[i * 2] = dx;
       this.desvio[i * 2 + 1] = dy;
 
+      if (this.intro < 1) {
+        // Entrada: cada partícula viaja desde la galaxia, con un pequeño retraso propio
+        const d = Math.min(1, Math.max(0, this.intro * 1.5 - (this.aleatorio[r + 3] / (Math.PI * 2)) * 0.5));
+        const q = easeInOut(d);
+        x = this.galaxia[k] + (x - this.galaxia[k]) * q;
+        y = this.galaxia[k + 1] + (y - this.galaxia[k + 1]) * q;
+        z = this.galaxia[k + 2] + (z - this.galaxia[k + 2]) * q;
+      }
       pos[k] = x + dx * 4;
       pos[k + 1] = y + dy * 4;
       pos[k + 2] = z;

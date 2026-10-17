@@ -1,11 +1,7 @@
 # Portafolio · Jorge Quintero
 
-Portafolio web en formato *entrevista*: cada capítulo empieza con la pregunta que haría quien quiere trabajar
-conmigo ("What has he shipped?") y una sola nube de partículas 3D responde transformándose en mi foto real, mis
-avatares, el código, Mercatto y al final mi nombre. La versión anterior sigue publicada en `/old/`.
-
-Para buscadores y asistentes de IA el sitio publica el mismo contenido en formato legible por máquinas:
-JSON-LD (schema.org `Person`) dentro de la página, `/profile.json` y `/llms.txt`, todo generado desde `src/data/perfil.ts`.
+Portafolio web en formato *scroll world*: al bajar, la cámara desciende por un pozo 3D en el azul noche de
+mi camiseta, pasando un anillo por cada sección. Un medidor de profundidad marca en qué nivel estás.
 
 Hecho con **Astro**, **React**, **TypeScript**, **Three.js**, **GSAP** (ScrollTrigger y SplitText), **Motion** y **Tailwind CSS**.
 

@@ -1,0 +1,13 @@
+# Jorge Quintero
+
+> Forward Deployed Engineer in fintech based in Medellín, Colombia, with 7+ years building web products. Turns ideas into software, APIs and integrations that scale.
+
+Contact: alejandrojj2018@gmail.com · LinkedIn https://www.linkedin.com/in/jorgeadj/ · GitHub https://github.com/jorgejj2018 · Upwork https://www.upwork.com/freelancers/~01576f660e4b4b0efd
+
+## Profile
+
+- [Structured résumé (JSON Resume)](https://jorgejj2018.github.io/portafolio/resume.json): work, skills, projects and certificates.
+- Core stack: React, Next.js, TypeScript, Java, Spring Boot, Google Cloud (GCP), AI agents.
+- Highlight: Mercatto SaaS, a sales platform for supermarkets and fruit & vegetable stores, live in production (https://mercattosas.netlify.app/).
+- Experience: 2026 Forward Deployed Engineer · Mercatto SaaS; 2025 Software Developer · Mente (fintech); 2021–2025 Junior Software Developer; 2021 Academia Geek bootcamp; 2019 web developer intern at Cesde.
+- Certificates: Introduction to Vertex AI Studio (Google, 2025); Python for Data Science and AI (Coursera, 2024). Award: Software Valley talent award (Medellín, 2020).
