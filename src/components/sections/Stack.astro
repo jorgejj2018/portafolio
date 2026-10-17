@@ -4,13 +4,12 @@ import SectionHeading from '../ui/SectionHeading.astro';
 import { stack } from '../../data/perfil';
 ---
 
-<section id="stack" data-station="2" class="flex min-h-svh flex-col justify-center py-28">
-  <div class="flex items-center justify-between gap-8">
-    <SectionHeading nivel={3} etiqueta="Stack" class="max-w-2xl">The tools I use to build.</SectionHeading>
+<section id="stack" data-station="2" class="flex flex-col justify-center py-12">
+  <SectionHeading etiqueta="Stack" class="max-w-2xl">The tools I use to build.</SectionHeading>
+  <div class="mt-12 grid items-end gap-4 md:grid-cols-3 lg:grid-cols-[0.45fr_1fr_1fr_1fr]" data-stagger>
     <!-- De perfil, mirando hacia las tarjetas -->
-    <AvatarPose pose="perfil-lado" alt="Jorge's avatar in profile" width={132} height={363} class="hidden w-28 shrink-0 md:block lg:w-32" parallax={0.05} />
-  </div>
-  <div class="mt-12 grid gap-4 md:grid-cols-3" data-stagger>
+    <AvatarPose pose="perfil-lado" alt="Jorge's avatar in profile" width={132} height={363} class="mx-auto hidden w-32 lg:block" parallax={0.05} />
+    <div class="contents">
     {
       stack.map((g) => (
         <div class="panel backlit rounded-2xl p-6" data-stagger-item>
@@ -26,5 +25,6 @@ import { stack } from '../../data/perfil';
         </div>
       ))
     }
+    </div>
   </div>
 </section>

@@ -152,16 +152,55 @@ section[id] {
   -webkit-text-stroke: 1.5px rgb(243 236 223 / 0.35);
 }
 
-/* Texto gigante del contacto: contorno que se rellena con el scroll (--fill de 0 a 100) */
-.mega-text {
-  font-size: clamp(3rem, 12.5vw, 11rem);
-  color: transparent;
-  -webkit-text-stroke: 1.5px rgb(169 193 255 / 0.5);
-  background: linear-gradient(100deg, var(--color-cream) 0%, var(--color-ice) 45%, var(--color-accent) 100%) no-repeat 0 0 /
-    calc(var(--fill, 0) * 1%) 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
+/* Resaltado del código de la portada */
+.tok-kw { color: #c792ea; }
+.tok-str { color: #f2c48d; }
+.tok-fn { color: #82aaff; }
+.tok-prop { color: var(--color-ice); }
+.tok-com { color: rgb(243 236 223 / 0.35); }
+
+/* Cursor de texto que parpadea en los comandos */
+.caret {
+  animation: caret 1s steps(1) infinite;
 }
-.mega-text:hover {
-  -webkit-text-stroke-color: var(--color-ice);
+@keyframes caret {
+  50% { opacity: 0; }
+}
+
+/* Anillo de la foto real: degradado que gira despacio */
+.photo-ring {
+  background: conic-gradient(from var(--ring, 0deg), var(--color-accent), transparent 30%, var(--color-ice) 55%, transparent 80%, var(--color-accent));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  animation: ring 8s linear infinite;
+}
+@property --ring {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes ring {
+  to { --ring: 360deg; }
+}
+
+/* Palabra final: cada letra empieza como símbolo de código en contorno y se completa en color */
+.final-char {
+  display: inline-block;
+  text-align: center;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(169 193 255 / 0.45);
+  transition: color 0.35s, -webkit-text-stroke-color 0.35s;
+}
+.final-char.is-set {
+  color: var(--color-cream);
+  -webkit-text-stroke-color: transparent;
+}
+.final-char.is-set.text-accent {
+  color: var(--color-accent);
+}
+
+/* En los comandos "--" debe verse tal cual, sin ligaduras de la fuente */
+[data-seam],
+[data-hero-code],
+[data-final-data] {
+  font-variant-ligatures: none;
 }

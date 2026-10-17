@@ -1,10 +1,27 @@
 ---
-import AvatarPose from '../ui/AvatarPose.astro';
 import Counter from '../react/Counter';
 import { perfil, roles, sobreMi } from '../../data/perfil';
+import { asset } from '../../lib/base';
+
+// Código de la portada con resaltado; cada línea se escribe sola al cargar
+const k = (t: string) => `<span class="tok-kw">${t}</span>`;
+const st = (t: string) => `<span class="tok-str">'${t}'</span>`;
+const fn = (t: string) => `<span class="tok-fn">${t}</span>`;
+const prop = (t: string) => `<span class="tok-prop">${t}</span>`;
+const codigo = [
+  `${k('import')} { Developer } ${k('from')} ${st('@jorge/core')};`,
+  '',
+  `${k('const')} jorge = ${k('new')} ${fn('Developer')}({`,
+  `  ${prop('role')}: ${st('Forward Deployed Engineer')},`,
+  `  ${prop('stack')}: [${st('React')}, ${st('Next.js')}, ${st('Spring Boot')}],`,
+  `  ${prop('based')}: ${st('Medellín, CO')},`,
+  '});',
+  '',
+  `${k('await')} jorge.${fn('build')}(yourIdea); <span class="tok-com">// → software that ships</span>`,
+];
 ---
 
-<section id="home" data-station="0" class="relative grid min-h-svh items-center gap-8 pt-28 pb-16 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10" data-hero>
+<section id="home" data-station="0" class="relative grid min-h-svh items-center gap-8 pt-28 pb-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14" data-hero>
   <div class="order-2 lg:order-1" data-hero-copy>
     <p class="eyebrow flex flex-wrap items-center gap-x-3 gap-y-1" data-hero-item>
       <span class="h-px w-8 bg-accent" aria-hidden="true"></span>
@@ -52,14 +69,49 @@ import { perfil, roles, sobreMi } from '../../data/perfil';
     </dl>
   </div>
 
-  <div class="relative order-1 mx-auto w-full max-w-[14rem] sm:max-w-[18rem] lg:order-2 lg:max-w-[23rem]" data-hero-avatar>
-    <AvatarPose pose="hero" alt="3D avatar of Jorge Quintero with arms crossed" width={587} height={1083} parallax={0} />
-    <p
-      class="absolute right-[-6%] bottom-[16%] rounded-full border border-cream/15 bg-shirt/85 px-3 py-1.5 font-mono text-[0.7rem] whitespace-nowrap text-cream backdrop-blur sm:text-xs"
-      data-hero-badge
-    >
-      <span class="mr-1.5 inline-block size-1.5 animate-pulse rounded-full bg-emerald-400 align-middle"></span>Open to work
-    </p>
+  <!-- El código se escribe, "compila" y sus partículas suben a formar la foto real: el producto terminado -->
+  <div class="relative order-1 mx-auto w-full max-w-[22rem] sm:max-w-[26rem] lg:order-2 lg:max-w-none" data-hero-avatar>
+    <div class="relative mx-auto aspect-square w-[11rem] sm:w-[14rem] lg:w-[17rem]">
+      <div class="avatar-glow pointer-events-none absolute inset-[-30%]" data-pose-glow></div>
+      <div class="photo-ring absolute inset-[-6px] rounded-full" aria-hidden="true"></div>
+      <img
+        src={asset('foto-real.webp')}
+        alt="Jorge Quintero"
+        width="560"
+        height="560"
+        loading="eager"
+        decoding="async"
+        class="relative size-full rounded-full object-cover opacity-0 transition-opacity duration-500"
+        data-hero-photo
+      />
+      <p
+        class="absolute right-[-14%] bottom-[8%] rounded-full border border-cream/15 bg-shirt/85 px-3 py-1.5 font-mono text-[0.7rem] whitespace-nowrap text-cream opacity-0 backdrop-blur sm:text-xs"
+        data-hero-badge
+      >
+        <span class="mr-1.5 inline-block size-1.5 animate-pulse rounded-full bg-emerald-400 align-middle"></span>Open to work
+      </p>
+    </div>
+
+    <div class="code-window relative z-10 mt-6 overflow-hidden rounded-2xl border border-cream/10 bg-shirt-2/90 font-mono text-[0.66rem] leading-[1.75] shadow-2xl shadow-black/40 backdrop-blur sm:text-xs" data-hero-code>
+      <div class="flex items-center gap-2 border-b border-cream/10 px-4 py-2.5">
+        <span class="size-2.5 rounded-full bg-[#ff5f57]"></span><span class="size-2.5 rounded-full bg-[#febc2e]"></span><span class="size-2.5 rounded-full bg-[#28c840]"></span>
+        <span class="ml-2 text-cream/50">jorge.ts</span>
+      </div>
+      <ol class="overflow-hidden px-4 py-3 whitespace-pre text-cream">
+        {
+          codigo.map((linea, i) => (
+            <li class="flex gap-4">
+              <span class="w-4 shrink-0 text-right text-cream/25 select-none">{i + 1}</span>
+              <span class="inline-block" data-code-line style="clip-path:inset(0 100% 0 0)" set:html={linea || ' '} />
+            </li>
+          ))
+        }
+      </ol>
+      <p class="flex items-center gap-2 border-t border-cream/10 px-4 py-2 text-cream/60" data-code-status>
+        <span class="inline-block size-1.5 rounded-full bg-amber-400" data-code-dot></span><span data-code-msg>compiling…</span>
+      </p>
+    </div>
+    <canvas class="pointer-events-none absolute inset-[-12%] z-20 h-[124%] w-[124%]" data-hero-canvas aria-hidden="true"></canvas>
   </div>
 
   <a href="#about" class="order-3 col-span-full hidden items-center gap-3 font-mono text-xs tracking-[0.14em] text-cream-dim uppercase lg:flex" data-hero-item>

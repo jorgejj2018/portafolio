@@ -11,7 +11,8 @@ import Projects from '../components/sections/Projects.astro';
 import Timeline from '../components/sections/Timeline.astro';
 import Contact from '../components/sections/Contact.astro';
 import Marquee from '../components/ui/Marquee.astro';
-import { cintas, perfil } from '../data/perfil';
+import CodeSeam from '../components/ui/CodeSeam.astro';
+import { cintas, pasosBuild as b, perfil } from '../data/perfil';
 ---
 
 <Base
@@ -20,7 +21,7 @@ import { cintas, perfil } from '../data/perfil';
 >
   <World client:only="react" />
   <Header />
-  <DepthGauge />
+  <DepthGauge pasos={Object.entries(b).map(([id, v]) => ({ id, paso: v.paso }))} />
 
   <main class="overflow-x-clip">
     <div class="gutter mx-auto max-w-6xl">
@@ -33,11 +34,17 @@ import { cintas, perfil } from '../data/perfil';
       <Marquee palabras={cintas.ideas} direccion={-1} variante="contorno" class="mt-2" />
     </div>
 
+    <!-- Entre sección y sección, el paso del build que la produce -->
     <div class="gutter mx-auto max-w-6xl">
+      <CodeSeam {...b.about} />
       <About />
+      <CodeSeam {...b.stack} />
       <Stack />
+      <CodeSeam {...b.specializations} />
       <Specializations />
+      <CodeSeam {...b.projects} />
       <Projects />
+      <CodeSeam {...b.journey} />
       <Timeline />
     </div>
 
@@ -47,6 +54,7 @@ import { cintas, perfil } from '../data/perfil';
     </div>
 
     <div class="gutter mx-auto max-w-6xl">
+      <CodeSeam {...b.contact} />
       <Contact />
     </div>
   </main>

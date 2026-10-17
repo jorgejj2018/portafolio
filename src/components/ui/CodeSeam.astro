@@ -1,0 +1,25 @@
+---
+interface Props {
+  comando: string;
+  salida: readonly string[];
+}
+
+const { comando, salida } = Astro.props;
+---
+
+<!-- Paso del build entre secciones: la línea baja, el comando se escribe y la salida se despliega con el scroll -->
+<div class="relative mx-auto flex max-w-2xl flex-col items-center py-10" data-seam aria-hidden="true">
+  <span class="h-20 w-px origin-top bg-gradient-to-b from-transparent via-accent/70 to-accent" data-seam-line></span>
+  <div class="mt-3 w-full overflow-hidden rounded-xl border border-cream/10 bg-shirt-2/80 px-4 py-3 font-mono text-[0.72rem] leading-relaxed backdrop-blur sm:text-xs">
+    <p class="whitespace-pre text-cream">
+      <span class="text-accent">$</span> <span class="inline-block align-bottom" data-seam-cmd style="clip-path:inset(0 100% 0 0)">{comando}</span><span class="caret ml-0.5 inline-block h-[1.1em] w-[0.5ch] translate-y-[2px] bg-ice" data-seam-caret></span>
+    </p>
+    {
+      salida.map((l) => (
+        <p class="overflow-hidden whitespace-pre text-ellipsis text-cream-dim opacity-0" data-seam-out>
+          {l}
+        </p>
+      ))
+    }
+  </div>
+</div>

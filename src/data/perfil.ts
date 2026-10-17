@@ -42,6 +42,19 @@ export const cintas = {
   ideas: ['Ideas into software', 'APIs that scale', 'Integrations', 'Fintech', 'AI agents', 'Clean code', 'Shipped to production'],
 };
 
+/**
+ * La historia del sitio es la construcción de un software: entre sección y sección
+ * aparece el comando de cada paso y su salida, que se despliega con el scroll.
+ */
+export const pasosBuild = {
+  about: { paso: 'init', comando: 'git init jorge-quintero', salida: ['Initialized repository: writing code since 2019', 'Author: Jorge Quintero <Medellín, Colombia>'] },
+  stack: { paso: 'install', comando: 'npm install react next spring-boot gcp ai-agents', salida: ['added 24 packages in 7 years', '0 vulnerabilities, ready to build'] },
+  specializations: { paso: 'learn', comando: 'npm run learn -- --deep', salida: ['typescript   ✓ type-safe by default', 'next.js      ✓ full stack react', 'node.js      ✓ apis that hold up'] },
+  projects: { paso: 'build', comando: 'npm run build', salida: ['✓ Mercatto SaaS     live in production', '✓ VentasTell        ✓ Voix de la Beauté   ✓ Geek Platform'] },
+  journey: { paso: 'log', comando: 'git log --oneline', salida: ['2026  Forward Deployed Engineer', '2025  Software Developer · 2021 Junior · 2019 first commit'] },
+  contact: { paso: 'deploy', comando: 'npm run deploy -- --prod', salida: ['Uploading… 100%', '✓ Build complete. Deployed to production.'] },
+} as const;
+
 export const sobreMi = {
   parrafos: [
     'I am a developer with 7+ years of experience building web applications with React, Next.js and JavaScript. Today I work as a Forward Deployed Engineer in fintech: close to the business, turning real needs into software, APIs and integrations that scale.',

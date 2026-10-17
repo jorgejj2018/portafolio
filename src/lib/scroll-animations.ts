@@ -2,6 +2,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
+import { ImagenParticulas } from './particles';
 
 gsap.registerPlugin(ScrollTrigger, SplitText, ScrambleTextPlugin);
 
@@ -11,16 +12,18 @@ ScrollTrigger.config({ ignoreMobileResize: true });
 
 const EASE = 'expo.out';
 
-// La máscara de entrada de las fotos sobresale de la imagen para no recortar el brillo del borde
-// en un rectángulo; al terminar se borra (clearProps) para que no quede ningún recuadro.
-const REVEAL_FROM = 'inset(100% -20% -20% -20%)';
-const REVEAL_TO = 'inset(-20% -20% -20% -20%)';
-
 const $ = <T extends Element = HTMLElement>(sel: string, root: ParentNode = document) => root.querySelector<T>(sel);
 const $$ = <T extends Element = HTMLElement>(sel: string, root: ParentNode = document) =>
   Array.from(root.querySelectorAll<T>(sel));
 
-/** Entrada de la portada: título letra por letra, luego el resto y el avatar. */
+let heroParticulas: ImagenParticulas | null = null;
+let heroSalida = 1;
+let introLista = false;
+
+/**
+ * Entrada de la portada: el título sube letra por letra, el código se escribe línea por línea,
+ * "compila" y sus partículas salen del editor para formar la foto real.
+ */
 function heroIntro() {
   const title = $('[data-hero-title]');
   const tl = gsap.timeline({ defaults: { ease: EASE } });
@@ -28,29 +31,70 @@ function heroIntro() {
     const split = SplitText.create(title, { type: 'chars,lines', mask: 'lines' });
     tl.from(split.chars, { yPercent: 110, duration: 1.1, stagger: 0.035 });
   }
-  tl.fromTo(
-    '[data-hero-avatar] [data-pose-img]',
-    { clipPath: REVEAL_FROM },
-    { clipPath: REVEAL_TO, duration: 1.3, ease: 'expo.inOut', clearProps: 'clipPath' },
-    0.1,
-  )
-    .from('[data-hero-avatar] [data-pose-glow]', { scale: 0.4, opacity: 0, duration: 1.6 }, 0.3)
-    .from('[data-hero-item]', { y: 24, opacity: 0, duration: 0.9, stagger: 0.08 }, 0.45)
-    .from('[data-hero-badge]', { scale: 0.6, opacity: 0, duration: 0.7, ease: 'back.out(2)' }, 1.1);
+  tl.from('[data-hero-item]', { y: 24, opacity: 0, duration: 0.9, stagger: 0.08 }, 0.35).from(
+    '[data-hero-code]',
+    { y: 30, opacity: 0, duration: 0.9 },
+    0.2,
+  );
+
+  // Cada línea se "escribe": se destapa de izquierda a derecha a saltos, un carácter a la vez
+  let t = 0.7;
+  $$('[data-code-line]').forEach((line) => {
+    const chars = Math.max(1, (line.textContent ?? '').trim().length);
+    const dur = Math.min(0.9, chars * 0.022);
+    tl.to(line, { clipPath: 'inset(0 0% 0 0)', duration: dur, ease: `steps(${chars})` }, t);
+    t += dur + 0.05;
+  });
+
+  const msg = $('[data-code-msg]');
+  const dot = $('[data-code-dot]');
+  tl.add(() => {
+    if (msg) msg.textContent = 'compiled in 1.2s · rendering jorge.webp';
+    dot?.classList.replace('bg-amber-400', 'bg-emerald-400');
+  }, t + 0.1);
+
+  const foto = $<HTMLImageElement>('[data-hero-photo]');
+  const canvas = $<HTMLCanvasElement>('[data-hero-canvas]');
+  if (!foto || !canvas) return;
+  const particulas = new ImagenParticulas(canvas, foto, {
+    paso: 3,
+    origen: $('[data-hero-code] ol'),
+    onCompleto: (completo) => {
+      foto.style.opacity = completo ? '1' : '0';
+      canvas.style.opacity = completo ? '0' : '1';
+    },
+  });
+  heroParticulas = particulas;
+  const estado = { p: 0 };
+  tl.to(estado, { p: 1, duration: 2.2, ease: 'power2.inOut', onUpdate: () => particulas.set(estado.p * heroSalida) }, t + 0.2)
+    .from('[data-hero-avatar] [data-pose-glow]', { scale: 0.4, opacity: 0, duration: 1.6 }, t + 0.6)
+    .set('[data-hero-badge]', { opacity: 1 }, t + 2.1)
+    .from('[data-hero-badge]', { scale: 0.6, duration: 0.7, ease: 'back.out(2)' }, t + 2.1)
+    .add(() => {
+      introLista = true;
+      particulas.set(heroSalida);
+    });
 }
 
-/** Al salir de la portada el avatar se aleja y el texto se desvanece (ligado al scroll). */
+/** Al salir de la portada la foto se disuelve en partículas y el texto se desvanece (ligado al scroll). */
 function heroOut() {
   const hero = $('[data-hero]');
   if (!hero) return;
-  const tl = gsap.timeline({
+  ScrollTrigger.create({
+    trigger: hero,
+    start: 'top top',
+    end: 'bottom top',
+    onUpdate: (self) => {
+      heroSalida = 1 - gsap.utils.clamp(0, 1, (self.progress - 0.15) / 0.6);
+      if (introLista) heroParticulas?.set(heroSalida);
+    },
+  });
+  gsap.to('[data-hero-copy]', {
+    yPercent: -8,
+    opacity: 0,
+    ease: 'none',
     scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6 },
   });
-  tl.to('[data-hero-avatar]', { yPercent: -12, scale: 0.9, opacity: 0.25, ease: 'none' }, 0).to(
-    '[data-hero-copy]',
-    { yPercent: -8, opacity: 0, ease: 'none' },
-    0,
-  );
 }
 
 /** Títulos de sección: cada línea sube desde una máscara. */
@@ -95,18 +139,54 @@ function staggers() {
   });
 }
 
-/** Poses del avatar: se revelan de abajo hacia arriba y flotan levemente con el scroll. */
+/**
+ * Poses del avatar: se arman con partículas al entrar en pantalla y se disuelven como polvo al salir,
+ * siguiendo el scroll en ambos sentidos. Flotan levemente con el scroll.
+ */
 function poses() {
   $$('[data-pose]')
     .filter((fig) => !fig.closest('[data-hero-avatar]'))
     .forEach((fig) => {
-      const img = $('[data-pose-img]', fig);
+      const img = $<HTMLImageElement>('[data-pose-img]', fig);
+      const canvas = $<HTMLCanvasElement>('[data-pose-canvas]', fig);
       const glow = $('[data-pose-glow]', fig);
       const amount = Number(fig.dataset.parallax ?? 0.12);
-      gsap
-        .timeline({ scrollTrigger: { trigger: fig, start: 'top 85%', once: true } })
-        .fromTo(img, { clipPath: REVEAL_FROM }, { clipPath: REVEAL_TO, duration: 1.2, ease: 'expo.inOut', clearProps: 'clipPath' })
-        .from(glow, { scale: 0.5, opacity: 0, duration: 1.4, ease: EASE }, 0.2);
+      if (!img || !canvas) return;
+      img.style.opacity = '0';
+      const particulas = new ImagenParticulas(canvas, img, {
+        paso: 3,
+        onCompleto: (completo) => {
+          img.style.opacity = completo ? '1' : '0';
+          canvas.style.opacity = completo ? '0' : '1';
+        },
+      });
+      let entrada = 0;
+      let salida = 0;
+      const actualizar = () => {
+        const p = entrada * (1 - salida);
+        particulas.set(p);
+        if (glow) glow.style.opacity = String(p);
+      };
+      ScrollTrigger.create({
+        trigger: fig,
+        start: 'top 95%',
+        end: 'top 45%',
+        onUpdate: (self) => {
+          entrada = self.progress;
+          actualizar();
+        },
+      });
+      // El avatar del cierre se queda armado: es el final de la historia
+      if (!fig.closest('[data-final]'))
+        ScrollTrigger.create({
+          trigger: fig,
+          start: 'bottom 35%',
+          end: 'bottom -5%',
+          onUpdate: (self) => {
+            salida = self.progress;
+            actualizar();
+          },
+        });
       if (amount > 0) {
         gsap.fromTo(
           fig,
@@ -119,6 +199,80 @@ function poses() {
         );
       }
     });
+}
+
+/** Pasos del build entre secciones: la línea baja, el comando se escribe y la salida aparece, todo con el scroll. */
+function seams() {
+  $$('[data-seam]').forEach((seam) => {
+    const cmd = $('[data-seam-cmd]', seam);
+    const chars = Math.max(1, (cmd?.textContent ?? '').length);
+    gsap
+      .timeline({
+        scrollTrigger: { trigger: seam, start: 'top 85%', end: 'bottom 55%', scrub: 0.5 },
+        defaults: { ease: 'none' },
+      })
+      .from($('[data-seam-line]', seam), { scaleY: 0, duration: 0.6 })
+      .to(cmd, { clipPath: 'inset(0 0% 0 0)', duration: 1, ease: `steps(${chars})` })
+      .to($$('[data-seam-out]', seam), { opacity: 1, duration: 0.3, stagger: 0.35 }, '+=0.15');
+  });
+}
+
+/**
+ * Cierre: la palabra final se completa letra por letra con el scroll. Las letras que faltan
+ * muestran símbolos de código que cambian; al final aparecen mis datos fila por fila.
+ */
+function finalWord() {
+  const word = $('[data-final-word]');
+  if (!word) return;
+  const letras = $$('[data-char]', word);
+  const simbolos = '01<>/{}[]#$;=';
+  // Cada letra guarda su ancho real para que los símbolos no muevan la palabra mientras cambian
+  const fijarAnchos = () =>
+    letras.forEach((el) => {
+      el.style.width = '';
+      const t = el.textContent;
+      el.textContent = el.dataset.char!;
+      el.style.width = `${el.getBoundingClientRect().width}px`;
+      el.textContent = t;
+    });
+  fijarAnchos();
+  document.fonts?.ready.then(fijarAnchos);
+  addEventListener('resize', fijarAnchos);
+  let progreso = 0;
+  let tick = 0;
+  const pintar = () => {
+    const fijas = Math.round(progreso * letras.length);
+    letras.forEach((el, i) => {
+      const fija = i < fijas;
+      el.classList.toggle('is-set', fija);
+      el.textContent = fija ? el.dataset.char! : simbolos[(i * 7 + tick) % simbolos.length];
+    });
+  };
+  // Mientras se completa, los símbolos cambian solos para que se sienta vivo
+  const latido = () => {
+    tick++;
+    if (tick % 4 === 0 && progreso < 1) pintar();
+  };
+  ScrollTrigger.create({
+    trigger: word,
+    start: 'top 85%',
+    end: 'bottom 45%',
+    onUpdate: (self) => {
+      progreso = self.progress;
+      pintar();
+    },
+    onToggle: (self) => (self.isActive ? gsap.ticker.add(latido) : gsap.ticker.remove(latido)),
+  });
+  pintar();
+  gsap.from('[data-final-done]', { opacity: 0, x: -12, duration: 0.8, ease: EASE, scrollTrigger: { trigger: word, start: 'top 85%', once: true } });
+  gsap.from('[data-final-row]', {
+    opacity: 0,
+    x: -10,
+    duration: 0.5,
+    stagger: 0.07,
+    ease: EASE,
+    scrollTrigger: { trigger: '[data-final-data]', start: 'top 88%', once: true },
+  });
 }
 
 /** Línea de tiempo: la línea se dibuja con el scroll y cada hito se enciende al alcanzarlo. */
@@ -149,15 +303,45 @@ function timeline() {
   });
 }
 
-/** Barra de avance y enlace activo del menú. */
+/** Barra de avance, estado del build y enlace activo del menú. */
 function depth() {
   const line = $('[data-depth-line]');
+  const build = $('[data-build]');
+  const pasos = JSON.parse(build?.dataset.buildPasos ?? '[]') as { id: string; paso: string }[];
+  const label = $('[data-build-label]');
+  const pct = $('[data-build-pct]');
+  let paso = 'start';
+  let avance = 0;
+  const pintarBuild = () => {
+    if (!build) return;
+    const listo = avance > 0.985;
+    if (label) label.textContent = listo ? 'deployed · ready' : `build · ${paso}`;
+    if (pct) pct.textContent = listo ? '' : `${Math.round(avance * 100)}%`;
+    $('[data-build-spin]', build)?.classList.toggle('hidden', listo);
+    $('[data-build-ok]', build)?.classList.toggle('hidden', !listo);
+  };
   ScrollTrigger.create({
     start: 0,
     end: 'max',
     onUpdate: (self) => {
       if (line) line.style.transform = `scaleX(${self.progress})`;
+      avance = self.progress;
+      pintarBuild();
     },
+  });
+  pasos.forEach(({ id, paso: nombre }) => {
+    const section = document.getElementById(id);
+    if (!section) return;
+    ScrollTrigger.create({
+      trigger: section,
+      start: 'top center',
+      end: 'bottom center',
+      onToggle: ({ isActive }) => {
+        if (!isActive) return;
+        paso = nombre;
+        pintarBuild();
+      },
+    });
   });
   $$('[data-station]').forEach((section) => {
     ScrollTrigger.create({
@@ -243,17 +427,6 @@ function marquees() {
   });
 }
 
-/** Texto gigante del contacto: se rellena de color a medida que entra en pantalla. */
-function megaText() {
-  const el = $('[data-mega]');
-  if (!el) return;
-  gsap.fromTo(
-    el,
-    { '--fill': 0 },
-    { '--fill': 100, ease: 'none', scrollTrigger: { trigger: el, start: 'top 90%', end: 'bottom 55%', scrub: 0.5 } },
-  );
-}
-
 /** Luz que sigue al cursor por todo el sitio. */
 function cursorLight() {
   const luz = $('[data-cursor-light]');
@@ -309,7 +482,12 @@ export function initScrollAnimations() {
       }
       if (!motion) {
         gsap.set('[data-timeline-line]', { scaleY: 1 });
-        gsap.set('[data-mega]', { '--fill': 100 });
+        // Sin animaciones: todo aparece ya terminado
+        gsap.set('[data-code-line], [data-seam-cmd]', { clipPath: 'none' });
+        gsap.set('[data-seam-out], [data-hero-photo], [data-hero-badge]', { opacity: 1 });
+        const msg = $('[data-code-msg]');
+        if (msg) msg.textContent = 'compiled · jorge.webp';
+        $$('[data-char]').forEach((el) => el.classList.add('is-set'));
         return;
       }
       heroIntro();
@@ -322,7 +500,8 @@ export function initScrollAnimations() {
       showcase();
       roles();
       marquees();
-      megaText();
+      seams();
+      finalWord();
     },
   );
 

@@ -15,6 +15,7 @@ interface Props {
 const { pose, alt, width, height, class: className = '', parallax = 0.12 } = Astro.props;
 ---
 
+<!-- El avatar se arma con partículas al entrar y se disuelve al salir (ver lib/particles.ts) -->
 <figure class:list={['relative', className]} data-pose data-parallax={parallax}>
   <div class="avatar-glow pointer-events-none absolute inset-x-[-25%] top-[-6%] aspect-square" data-pose-glow></div>
   <img
@@ -22,11 +23,12 @@ const { pose, alt, width, height, class: className = '', parallax = 0.12 } = Ast
     alt={alt}
     width={width}
     height={height}
-    loading={pose === 'hero' ? 'eager' : 'lazy'}
+    loading="eager"
     decoding="async"
     class="avatar-img relative w-full select-none"
     draggable="false"
     data-pose-img
   />
+  <canvas class="pointer-events-none absolute inset-[-35%] h-[170%] w-[170%]" data-pose-canvas aria-hidden="true"></canvas>
   <div class="absolute inset-x-[10%] bottom-[1%] h-[4%] rounded-[50%] border border-accent/50 bg-accent/10" aria-hidden="true"></div>
 </figure>

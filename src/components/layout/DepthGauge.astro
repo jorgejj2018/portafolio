@@ -1,4 +1,29 @@
+---
+interface Props {
+  /** Paso del build que corresponde a cada sección (id de la sección y nombre del paso) */
+  pasos: { id: string; paso: string }[];
+}
+
+const { pasos } = Astro.props;
+---
+
 <!-- Barra fina arriba que muestra el avance del recorrido -->
 <div class="fixed inset-x-0 top-0 z-50 h-0.5" aria-hidden="true">
   <div class="h-full origin-left bg-accent" style="transform:scaleX(0)" data-depth-line></div>
+</div>
+
+<!-- Estado del build: el recorrido por el sitio es la construcción del software -->
+<div
+  class="fixed bottom-5 left-5 z-40 hidden items-center gap-2.5 rounded-full border border-cream/10 bg-shirt-2/85 py-2 pr-4 pl-3 font-mono text-xs text-cream/80 shadow-lg shadow-black/30 backdrop-blur sm:flex"
+  data-build
+  data-build-pasos={JSON.stringify(pasos)}
+  aria-hidden="true"
+>
+  <span class="relative grid size-4 place-items-center">
+    <span class="absolute inset-0 rounded-full border-2 border-cream/15"></span>
+    <span class="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-accent" data-build-spin></span>
+    <span class="hidden text-emerald-400" data-build-ok>✓</span>
+  </span>
+  <span data-build-label>build · start</span>
+  <span class="text-cream/40 tabular-nums" data-build-pct>0%</span>
 </div>
